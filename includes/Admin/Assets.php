@@ -39,5 +39,14 @@ final class Assets implements ServiceProvider {
 			WPXCACHE_VERSION,
 			true
 		);
+
+		wp_localize_script(
+			'wpxcache-admin',
+			'WPXCacheAdmin',
+			[
+				'restUrl' => esc_url_raw(rest_url('wpxcache/v1')),
+				'nonce'   => wp_create_nonce('wp_rest'),
+			]
+		);
 	}
 }
