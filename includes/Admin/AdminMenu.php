@@ -43,6 +43,15 @@ final class AdminMenu implements ServiceProvider {
 
 		add_submenu_page(
 			'wpxcache',
+			__('Cache', 'wpxcache'),
+			__('Cache', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-cache',
+			[$this, 'render_cache']
+		);
+
+		add_submenu_page(
+			'wpxcache',
 			__('WooCommerce', 'wpxcache'),
 			__('WooCommerce', 'wpxcache'),
 			Capability::MANAGE,
@@ -109,6 +118,12 @@ final class AdminMenu implements ServiceProvider {
 		Capability::require_manage();
 
 		(new DashboardPage())->render();
+	}
+
+	public function render_cache(): void {
+		Capability::require_manage();
+
+		(new CachePage())->render();
 	}
 
 	public function render_woocommerce(): void {
