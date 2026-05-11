@@ -13,6 +13,8 @@ use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\CacheStorage;
 use WPXCache\Core\Config;
 use WPXCache\Diagnostics\ConflictDetector;
+use WPXCache\Diagnostics\HealthCheck;
+use WPXCache\Diagnostics\LogReader;
 use WPXCache\Security\Capability;
 use WPXCache\Security\Nonce;
 
@@ -26,10 +28,11 @@ final class DashboardPage {
 
 		$notice = $this->handle_action();
 		$settings = Config::settings();
-		$checks   = $this->get_foundation_checks();
+		$checks   = (new HealthCheck())->checks();
 		$storage  = new CacheStorage();
 		$dropin   = (new AdvancedCacheInstaller())->status();
 		$conflicts = (new ConflictDetector())->detect();
+		$logs = (new LogReader())->recent(6);
 		$stats    = [
 			'count'      => $storage->html_file_count(),
 			'size'       => size_format($storage->size_bytes()),
@@ -76,47 +79,6 @@ final class DashboardPage {
 		return [
 			'type'    => 'error',
 			'message' => __('Unknown WP XCache action.', 'wpxcache'),
-		];
-	}
-
-	/**
-	 * @return array<int, array{label: string, status: string, message: string}>
-	 */
-	private function get_foundation_checks(): array {
-		return [
-			[
-				'label'   => __('PHP version', 'wpxcache'),
-				'status'  => version_compare(PHP_VERSION, '8.1', '>=') ? 'green' : 'red',
-				'message' => sprintf(
-					/* translators: %s: PHP version */
-					__('Current PHP version: %s', 'wpxcache'),
-					PHP_VERSION
-				),
-			],
-			[
-				'label'   => __('WordPress version', 'wpxcache'),
-				'status'  => version_compare(get_bloginfo('version'), '6.4', '>=') ? 'green' : 'red',
-				'message' => sprintf(
-					/* translators: %s: WordPress version */
-					__('Current WordPress version: %s', 'wpxcache'),
-					get_bloginfo('version')
-				),
-			],
-			[
-				'label'   => __('Cache directory', 'wpxcache'),
-				'status'  => is_dir(WPXCACHE_CACHE_DIR) && wp_is_writable(WPXCACHE_CACHE_DIR) ? 'green' : 'yellow',
-				'message' => WPXCACHE_CACHE_DIR,
-			],
-			[
-				'label'   => __('Log directory', 'wpxcache'),
-				'status'  => is_dir(WPXCACHE_LOG_DIR) && wp_is_writable(WPXCACHE_LOG_DIR) ? 'green' : 'yellow',
-				'message' => WPXCACHE_LOG_DIR,
-			],
-			[
-				'label'   => __('WP_CACHE constant', 'wpxcache'),
-				'status'  => defined('WP_CACHE') && WP_CACHE ? 'green' : 'yellow',
-				'message' => defined('WP_CACHE') && WP_CACHE ? __('Enabled', 'wpxcache') : __('Not enabled', 'wpxcache'),
-			],
 		];
 	}
 

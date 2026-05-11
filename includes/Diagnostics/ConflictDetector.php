@@ -22,6 +22,7 @@ final class ConflictDetector {
 	public function detect(): array {
 		$warnings = [];
 		$status = (new AdvancedCacheInstaller())->status();
+		$env = (new EnvironmentScanner())->scan();
 
 		if ($status['exists'] && ! $status['owned']) {
 			$warnings[] = [
@@ -34,6 +35,43 @@ final class ConflictDetector {
 			$warnings[] = [
 				'level'   => 'yellow',
 				'message' => __('WP_CACHE is not enabled, so the drop-in cannot serve cached pages before WordPress loads.', 'wpxcache'),
+			];
+		}
+
+		if (! empty($env['cloudflare'])) {
+			$warnings[] = [
+				'level'   => 'yellow',
+				'message' => __('Cloudflare headers were detected. Use CDN purge carefully so visitors do not receive stale HTML.', 'wpxcache'),
+			];
+		}
+
+		if (! empty($env['litespeed'])) {
+			$warnings[] = [
+				'level'   => 'yellow',
+				'message' => __('LiteSpeed server was detected. Avoid enabling two independent full-page cache layers for the same pages.', 'wpxcache'),
+			];
+		}
+
+		if (! empty($env['object_cache'])) {
+			$warnings[] = [
+				'level'   => 'green',
+				'message' => __('External object cache appears to be active. This can work alongside page cache when page cache exclusions are respected.', 'wpxcache'),
+			];
+		}
+
+		$server = is_scalar($env['server_software'] ?? '') ? (string) $env['server_software'] : '';
+
+		if (false !== stripos($server, 'varnish')) {
+			$warnings[] = [
+				'level'   => 'yellow',
+				'message' => __('Varnish-like server software was detected. Coordinate purge rules between server cache and WP XCache.', 'wpxcache'),
+			];
+		}
+
+		if (false !== stripos($server, 'nginx')) {
+			$warnings[] = [
+				'level'   => 'green',
+				'message' => __('Nginx was detected. WP XCache can run safely, but any FastCGI cache layer should be reviewed for overlap.', 'wpxcache'),
 			];
 		}
 

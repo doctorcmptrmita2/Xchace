@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace WPXCache\Cache;
 
 use WPXCache\Core\Config;
+use WPXCache\Logger\Logger;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -21,43 +22,52 @@ final class AdvancedCacheInstaller {
 	private string $dropin_path;
 	private string $source_path;
 	private string $config_path;
+	private Logger $logger;
 
-	public function __construct() {
+	public function __construct(?Logger $logger = null) {
 		$this->dropin_path = WP_CONTENT_DIR . '/advanced-cache.php';
 		$this->source_path = WPXCACHE_PATH . 'dropins/advanced-cache.php';
 		$this->config_path = WPXCACHE_CACHE_DIR . '/dropin-config.php';
+		$this->logger = $logger ?: new Logger();
 	}
 
 	public function install(): array {
 		$status = $this->status();
 
 		if (! is_readable($this->source_path)) {
+			$this->logger->error('Drop-in source file is missing.', ['path' => $this->source_path]);
 			return $this->result(false, __('Drop-in source file is missing.', 'wpxcache'));
 		}
 
 		if ($status['exists'] && ! $status['owned']) {
+			$this->logger->warning('Skipped drop-in install because another advanced-cache.php exists.', ['path' => $this->dropin_path]);
 			return $this->result(false, __('Another advanced-cache.php drop-in is already installed. WP XCache Pro will not overwrite it.', 'wpxcache'));
 		}
 
 		if (! wp_mkdir_p(WPXCACHE_CACHE_DIR)) {
+			$this->logger->error('Cache directory could not be created.', ['path' => WPXCACHE_CACHE_DIR]);
 			return $this->result(false, __('Cache directory could not be created.', 'wpxcache'));
 		}
 
 		if ($status['exists'] && ! $this->backup_existing()) {
+			$this->logger->error('Existing drop-in could not be backed up.', ['path' => $this->dropin_path]);
 			return $this->result(false, __('Existing drop-in could not be backed up.', 'wpxcache'));
 		}
 
 		$source = file_get_contents($this->source_path);
 
 		if (! is_string($source) || '' === $source) {
+			$this->logger->error('Drop-in source file could not be read.', ['path' => $this->source_path]);
 			return $this->result(false, __('Drop-in source file could not be read.', 'wpxcache'));
 		}
 
 		if (false === file_put_contents($this->dropin_path, $source, LOCK_EX)) {
+			$this->logger->error('advanced-cache.php could not be written.', ['path' => $this->dropin_path]);
 			return $this->result(false, __('advanced-cache.php could not be written.', 'wpxcache'));
 		}
 
 		$this->write_config();
+		$this->logger->info('advanced-cache.php installed.', ['path' => $this->dropin_path]);
 
 		return $this->result(true, __('advanced-cache.php installed successfully.', 'wpxcache'));
 	}
@@ -67,18 +77,22 @@ final class AdvancedCacheInstaller {
 
 		if (! $status['exists']) {
 			$this->remove_config();
+			$this->logger->info('Drop-in remove requested but no advanced-cache.php was installed.');
 			return $this->result(true, __('No advanced-cache.php drop-in was installed.', 'wpxcache'));
 		}
 
 		if (! $status['owned']) {
+			$this->logger->warning('Skipped drop-in removal because advanced-cache.php is not owned by WP XCache.', ['path' => $this->dropin_path]);
 			return $this->result(false, __('The installed advanced-cache.php does not belong to WP XCache Pro, so it was not removed.', 'wpxcache'));
 		}
 
 		if (! wp_delete_file($this->dropin_path)) {
+			$this->logger->error('advanced-cache.php could not be removed.', ['path' => $this->dropin_path]);
 			return $this->result(false, __('advanced-cache.php could not be removed.', 'wpxcache'));
 		}
 
 		$this->remove_config();
+		$this->logger->info('advanced-cache.php removed.', ['path' => $this->dropin_path]);
 
 		return $this->result(true, __('advanced-cache.php removed successfully.', 'wpxcache'));
 	}

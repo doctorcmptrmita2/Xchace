@@ -5,10 +5,11 @@
  * @package WPXCache
  *
  * @var array<string, mixed> $settings
- * @var array<int, array{label: string, status: string, message: string}> $checks
+ * @var array<int, array{id: string, label: string, status: string, problem: string, why: string, fix: string, auto_fix: bool}> $checks
  * @var array{count: int, size: string, last_purge: string} $stats
  * @var array{exists: bool, owned: bool, wp_cache: bool, path: string, config_exists: bool, writable: bool} $dropin
  * @var array<int, array{level: string, message: string}> $conflicts
+ * @var array<int, array<string, mixed>> $logs
  * @var array{type: string, message: string}|null $notice
  */
 
@@ -108,17 +109,20 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 	</div>
 
 	<section class="wpxcache-panel wpxcache-panel-wide">
-		<h2><?php echo esc_html__('Foundation Health', 'wpxcache'); ?></h2>
-		<table class="widefat striped">
-			<tbody>
-				<?php foreach ($checks as $check) : ?>
-					<tr>
-						<th scope="row"><?php echo esc_html($check['label']); ?></th>
-						<td><span class="wpxcache-dot is-<?php echo esc_attr($check['status']); ?>"></span><?php echo esc_html($check['message']); ?></td>
-					</tr>
-				<?php endforeach; ?>
-			</tbody>
-		</table>
+		<h2><?php echo esc_html__('Health Check', 'wpxcache'); ?></h2>
+		<div class="wpxcache-health-list">
+			<?php foreach ($checks as $check) : ?>
+				<article class="wpxcache-health-item">
+					<div class="wpxcache-health-heading">
+						<span class="wpxcache-dot is-<?php echo esc_attr($check['status']); ?>"></span>
+						<strong><?php echo esc_html($check['label']); ?></strong>
+					</div>
+					<p><?php echo esc_html($check['problem']); ?></p>
+					<small><?php echo esc_html($check['why']); ?></small>
+					<small><?php echo esc_html($check['fix']); ?></small>
+				</article>
+			<?php endforeach; ?>
+		</div>
 	</section>
 
 	<section class="wpxcache-panel wpxcache-panel-wide">
@@ -131,6 +135,32 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 					<li><span class="wpxcache-dot is-<?php echo esc_attr($conflict['level']); ?>"></span><?php echo esc_html($conflict['message']); ?></li>
 				<?php endforeach; ?>
 			</ul>
+		<?php endif; ?>
+	</section>
+
+	<section class="wpxcache-panel wpxcache-panel-wide">
+		<h2><?php echo esc_html__('Recent Logs', 'wpxcache'); ?></h2>
+		<?php if ([] === $logs) : ?>
+			<p><?php echo esc_html__('No log entries yet.', 'wpxcache'); ?></p>
+		<?php else : ?>
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th scope="col"><?php echo esc_html__('Time', 'wpxcache'); ?></th>
+						<th scope="col"><?php echo esc_html__('Level', 'wpxcache'); ?></th>
+						<th scope="col"><?php echo esc_html__('Message', 'wpxcache'); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($logs as $log) : ?>
+						<tr>
+							<td><?php echo esc_html(isset($log['time']) && is_scalar($log['time']) ? (string) $log['time'] : ''); ?></td>
+							<td><?php echo esc_html(isset($log['level']) && is_scalar($log['level']) ? (string) $log['level'] : ''); ?></td>
+							<td><?php echo esc_html(isset($log['message']) && is_scalar($log['message']) ? (string) $log['message'] : ''); ?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
 		<?php endif; ?>
 	</section>
 </div>

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace WPXCache\Cache;
 
+use WPXCache\Logger\Logger;
 use WPXCache\Security\PathValidator;
 
 if (! defined('ABSPATH')) {
@@ -16,12 +17,16 @@ if (! defined('ABSPATH')) {
 }
 
 final class CachePurger {
-	public function __construct(private ?PathValidator $path_validator = null) {
+	private Logger $logger;
+
+	public function __construct(private ?PathValidator $path_validator = null, ?Logger $logger = null) {
 		$this->path_validator = $path_validator ?: new PathValidator();
+		$this->logger = $logger ?: new Logger();
 	}
 
 	public function purge_all(): bool {
 		if (! is_dir(WPXCACHE_CACHE_DIR) || ! $this->path_validator->is_safe_cache_path(WPXCACHE_CACHE_DIR)) {
+			$this->logger->error('Full cache purge blocked because cache directory is unsafe or missing.', ['path' => WPXCACHE_CACHE_DIR]);
 			return false;
 		}
 
@@ -35,6 +40,7 @@ final class CachePurger {
 		$result = $this->delete_children(WPXCACHE_CACHE_DIR);
 
 		update_option('wpxcache_last_purge', time(), false);
+		$this->logger->info('Full cache purge completed.', ['success' => $result]);
 
 		/**
 		 * Fires after cache purge.

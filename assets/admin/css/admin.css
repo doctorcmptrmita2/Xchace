@@ -146,6 +146,36 @@
 	margin: 8px 0;
 }
 
+.wpxcache-health-list {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wpxcache-health-item {
+	background: #f6f7f7;
+	border-radius: 4px;
+	padding: 12px;
+}
+
+.wpxcache-health-heading {
+	align-items: center;
+	display: flex;
+	margin-bottom: 8px;
+}
+
+.wpxcache-health-item p {
+	color: #1d2327;
+	margin: 0 0 6px;
+}
+
+.wpxcache-health-item small {
+	color: #646970;
+	display: block;
+	line-height: 1.45;
+	margin-top: 4px;
+}
+
 @media (max-width: 782px) {
 	.wpxcache-header,
 	.wpxcache-grid {
@@ -157,6 +187,10 @@
 	}
 
 	.wpxcache-metrics {
+		grid-template-columns: 1fr;
+	}
+
+	.wpxcache-health-list {
 		grid-template-columns: 1fr;
 	}
 }
