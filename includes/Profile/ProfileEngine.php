@@ -31,17 +31,17 @@ final class ProfileEngine {
 
 		if (class_exists('WooCommerce') || function_exists('WC')) {
 			$scores['woocommerce'] += 80;
-			$signals[] = __('WooCommerce detected', 'wpxcache');
+			$signals[] = __('WooCommerce algılandı', 'wpxcache');
 		}
 
 		if ($this->plugin_active(['memberpress/memberpress.php', 'paid-memberships-pro/paid-memberships-pro.php', 'learndash/learndash.php', 'buddypress/bp-loader.php'])) {
 			$scores['membership'] += 70;
-			$signals[] = __('Membership or learning plugin detected', 'wpxcache');
+			$signals[] = __('Üyelik veya eğitim eklentisi algılandı', 'wpxcache');
 		}
 
 		if ($this->plugin_active(['elementor/elementor.php', 'elementor-pro/elementor-pro.php', 'js_composer/js_composer.php', 'beaver-builder-lite-version/fl-builder.php'])) {
 			$scores['business'] += 20;
-			$signals[] = __('Page builder detected', 'wpxcache');
+			$signals[] = __('Sayfa oluşturucu algılandı', 'wpxcache');
 		}
 
 		$post_count = (int) wp_count_posts('post')->publish;
@@ -49,22 +49,22 @@ final class ProfileEngine {
 
 		if ($post_count >= 100) {
 			$scores['news'] += 35;
-			$signals[] = __('High post count detected', 'wpxcache');
+			$signals[] = __('Yüksek yazı sayısı algılandı', 'wpxcache');
 		}
 
 		if ($post_count > $page_count * 3) {
 			$scores['blog'] += 25;
-			$signals[] = __('Post-heavy site structure detected', 'wpxcache');
+			$signals[] = __('Yazı ağırlıklı site yapısı algılandı', 'wpxcache');
 		}
 
 		if ($page_count >= $post_count && $page_count >= 5) {
 			$scores['business'] += 25;
-			$signals[] = __('Page-heavy site structure detected', 'wpxcache');
+			$signals[] = __('Sayfa ağırlıklı site yapısı algılandı', 'wpxcache');
 		}
 
 		if (defined('WP_DEBUG') && WP_DEBUG) {
 			$scores['developer'] += 30;
-			$signals[] = __('WP_DEBUG is enabled', 'wpxcache');
+			$signals[] = __('WP_DEBUG aktif', 'wpxcache');
 		}
 
 		arsort($scores);
@@ -82,12 +82,12 @@ final class ProfileEngine {
 	private function label(string $profile): string {
 		$labels = [
 			'blog'        => __('Blog', 'wpxcache'),
-			'business'    => __('Business site', 'wpxcache'),
-			'woocommerce' => __('WooCommerce store', 'wpxcache'),
-			'news'        => __('News site', 'wpxcache'),
-			'membership'  => __('Membership site', 'wpxcache'),
-			'agency'      => __('Agency/client site', 'wpxcache'),
-			'developer'   => __('Developer/manual mode', 'wpxcache'),
+			'business'    => __('Kurumsal site', 'wpxcache'),
+			'woocommerce' => __('WooCommerce mağazası', 'wpxcache'),
+			'news'        => __('Haber sitesi', 'wpxcache'),
+			'membership'  => __('Üyelik sitesi', 'wpxcache'),
+			'agency'      => __('Ajans/client sitesi', 'wpxcache'),
+			'developer'   => __('Developer/manual mod', 'wpxcache'),
 		];
 
 		return $labels[$profile] ?? $labels['business'];

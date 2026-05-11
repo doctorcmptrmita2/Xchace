@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace WPXCache\Cache;
 
 use WPXCache\Logger\Logger;
+use WPXCache\Security\FileGuard;
 use WPXCache\Security\PathValidator;
 
 if (! defined('ABSPATH')) {
@@ -20,12 +21,14 @@ final class CachePurger {
 	private Logger $logger;
 	private CacheKey $cache_key;
 	private CacheStorage $storage;
+	private FileGuard $file_guard;
 
-	public function __construct(private ?PathValidator $path_validator = null, ?Logger $logger = null, ?CacheKey $cache_key = null, ?CacheStorage $storage = null) {
+	public function __construct(private ?PathValidator $path_validator = null, ?Logger $logger = null, ?CacheKey $cache_key = null, ?CacheStorage $storage = null, ?FileGuard $file_guard = null) {
 		$this->path_validator = $path_validator ?: new PathValidator();
 		$this->logger = $logger ?: new Logger();
 		$this->cache_key = $cache_key ?: new CacheKey();
 		$this->storage = $storage ?: new CacheStorage();
+		$this->file_guard = $file_guard ?: new FileGuard($this->path_validator);
 	}
 
 	public function purge_all(): bool {
@@ -162,7 +165,7 @@ final class CachePurger {
 		}
 
 		$deleted = $this->delete_children($directory);
-		$removed = @rmdir($directory);
+		$removed = $this->file_guard->remove_cache_directory($directory);
 
 		$this->logger->info('Single URL purge completed.', ['url' => $url, 'success' => $deleted && $removed]);
 
@@ -193,11 +196,11 @@ final class CachePurger {
 			}
 
 			if ($file->isDir()) {
-				$ok = @rmdir($path) && $ok;
+				$ok = $this->file_guard->remove_cache_directory($path) && $ok;
 				continue;
 			}
 
-			$ok = @unlink($path) && $ok;
+			$ok = $this->file_guard->delete_cache_file($path) && $ok;
 		}
 
 		return $ok;

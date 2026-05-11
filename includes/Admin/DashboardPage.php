@@ -15,10 +15,12 @@ use WPXCache\Core\Config;
 use WPXCache\Diagnostics\ConflictDetector;
 use WPXCache\Diagnostics\HealthCheck;
 use WPXCache\Diagnostics\LogReader;
+use WPXCache\Logger\Logger;
 use WPXCache\Optimization\AssetCacheManager;
 use WPXCache\Profile\ProfileEngine;
 use WPXCache\Profile\SafeSettingsApplier;
 use WPXCache\Security\Capability;
+use WPXCache\Security\FileGuard;
 use WPXCache\Security\Nonce;
 
 if (! defined('ABSPATH')) {
@@ -94,10 +96,49 @@ final class DashboardPage {
 			];
 		}
 
+		if ('prepare_cache_directories' === $action) {
+			return $this->prepare_cache_directories();
+		}
+
 		return [
 			'type'    => 'error',
 			'message' => __('Unknown WP XCache action.', 'wpxcache'),
 		];
+	}
+
+	/**
+	 * @return array{type: string, message: string}
+	 */
+	private function prepare_cache_directories(): array {
+		$file_guard = new FileGuard();
+		$cache_ready = $file_guard->ensure_directory(WPXCACHE_CACHE_DIR);
+		$log_ready = $file_guard->ensure_directory(WPXCACHE_LOG_DIR);
+
+		if ($cache_ready) {
+			$this->write_protection_files(WPXCACHE_CACHE_DIR);
+		}
+
+		if ($log_ready) {
+			$this->write_protection_files(WPXCACHE_LOG_DIR);
+			$file_guard->write_cache_file(trailingslashit(WPXCACHE_LOG_DIR) . '.htaccess', "Deny from all\n");
+		}
+
+		$success = $cache_ready && $log_ready;
+		(new Logger())->info('Cache directories prepared from Dashboard.', ['success' => $success]);
+
+		return [
+			'type'    => $success ? 'success' : 'error',
+			'message' => $success ? __('Cache ve log dizinleri hazırlandı.', 'wpxcache') : __('Cache veya log dizini hazırlanamadı. Dosya izinlerini kontrol edin.', 'wpxcache'),
+		];
+	}
+
+	private function write_protection_files(string $directory): void {
+		$file_guard = new FileGuard();
+		$index = trailingslashit($directory) . 'index.php';
+
+		if (! is_file($index)) {
+			$file_guard->write_cache_file($index, "<?php\n// Silence is golden.\n");
+		}
 	}
 
 	private function format_last_purge(): string {

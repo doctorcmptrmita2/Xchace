@@ -18,6 +18,10 @@ final class EnvironmentScanner {
 	 * @return array<string, mixed>
 	 */
 	public function scan(): array {
+		$disk_free = is_dir(WP_CONTENT_DIR) ? disk_free_space(WP_CONTENT_DIR) : false;
+		$cache_parent = is_dir(dirname(WPXCACHE_CACHE_DIR)) ? dirname(WPXCACHE_CACHE_DIR) : WP_CONTENT_DIR;
+		$log_parent = is_dir(dirname(WPXCACHE_LOG_DIR)) ? dirname(WPXCACHE_LOG_DIR) : WPXCACHE_CACHE_DIR;
+
 		return [
 			'php_version'       => PHP_VERSION,
 			'wp_version'        => get_bloginfo('version'),
@@ -32,10 +36,14 @@ final class EnvironmentScanner {
 			'brotli'            => function_exists('brotli_compress'),
 			'wp_cron_disabled'  => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
 			'cache_dir'         => WPXCACHE_CACHE_DIR,
+			'cache_dir_exists'  => is_dir(WPXCACHE_CACHE_DIR),
 			'cache_writable'    => is_dir(WPXCACHE_CACHE_DIR) && wp_is_writable(WPXCACHE_CACHE_DIR),
+			'cache_can_create'  => is_dir($cache_parent) && wp_is_writable($cache_parent),
 			'log_dir'           => WPXCACHE_LOG_DIR,
+			'log_dir_exists'    => is_dir(WPXCACHE_LOG_DIR),
 			'log_writable'      => is_dir(WPXCACHE_LOG_DIR) && wp_is_writable(WPXCACHE_LOG_DIR),
-			'disk_free_bytes'   => is_dir(WP_CONTENT_DIR) ? (int) disk_free_space(WP_CONTENT_DIR) : 0,
+			'log_can_create'    => is_dir($log_parent) && wp_is_writable($log_parent),
+			'disk_free_bytes'   => false === $disk_free ? -1 : (int) $disk_free,
 			'woocommerce'       => class_exists('WooCommerce'),
 			'cloudflare'        => $this->looks_like_cloudflare(),
 			'litespeed'         => $this->looks_like_litespeed(),

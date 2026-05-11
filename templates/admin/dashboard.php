@@ -6,7 +6,7 @@
  *
  * @var array<string, mixed> $settings
  * @var array{id: string, label: string, confidence: int, signals: array<int, string>} $profile
- * @var array<int, array{id: string, label: string, status: string, problem: string, why: string, fix: string, auto_fix: bool}> $checks
+ * @var array<int, array{id: string, label: string, status: string, problem: string, why: string, fix: string, auto_fix: bool, action: string, action_label: string}> $checks
  * @var array{count: int, size: string, last_purge: string, last_preload: string, optimized_assets: int, optimized_assets_size: string} $stats
  * @var array{exists: bool, owned: bool, wp_cache: bool, path: string, config_exists: bool, writable: bool} $dropin
  * @var array<int, array{level: string, message: string}> $conflicts
@@ -156,6 +156,14 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 					<p><?php echo esc_html($check['problem']); ?></p>
 					<small><?php echo esc_html($check['why']); ?></small>
 					<small><?php echo esc_html($check['fix']); ?></small>
+					<?php if (! empty($check['auto_fix']) && ! empty($check['action']) && ! empty($check['action_label'])) : ?>
+						<form method="post" class="wpxcache-actions">
+							<?php \WPXCache\Security\Nonce::field(); ?>
+							<button class="button button-secondary" type="submit" name="wpxcache_action" value="<?php echo esc_attr($check['action']); ?>">
+								<?php echo esc_html($check['action_label']); ?>
+							</button>
+						</form>
+					<?php endif; ?>
 				</article>
 			<?php endforeach; ?>
 		</div>
