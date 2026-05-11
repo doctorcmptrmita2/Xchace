@@ -126,6 +126,8 @@ final class AdvancedCacheInstaller {
 			'cache_dir'           => WPXCACHE_CACHE_DIR,
 			'never_cache_urls'    => is_array($settings['cache']['never_cache_urls'] ?? null) ? array_values($settings['cache']['never_cache_urls']) : [],
 			'never_cache_cookies' => is_array($settings['cache']['never_cache_cookies'] ?? null) ? array_values($settings['cache']['never_cache_cookies']) : [],
+			'never_cache_user_agents' => is_array($settings['cache']['never_cache_user_agents'] ?? null) ? array_values($settings['cache']['never_cache_user_agents']) : [],
+			'query_string_whitelist'  => is_array($settings['cache']['query_string_whitelist'] ?? null) ? array_values($settings['cache']['query_string_whitelist']) : [],
 		];
 
 		if (! wp_mkdir_p(WPXCACHE_CACHE_DIR)) {

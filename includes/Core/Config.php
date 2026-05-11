@@ -48,6 +48,7 @@ final class Config {
 					'wp_woocommerce_session_',
 				],
 				'never_cache_user_agents'  => [],
+				'custom_ttl'               => [],
 				'purge_home_on_update'     => true,
 				'purge_archives_on_update' => true,
 			],

@@ -22,12 +22,14 @@ final class CacheWriter {
 		private ?CacheStorage $storage = null,
 		private ?CacheKey $cache_key = null,
 		private ?FileGuard $file_guard = null,
-		private ?Logger $logger = null
+		private ?Logger $logger = null,
+		private ?CacheRules $rules = null
 	) {
 		$this->storage    = $storage ?: new CacheStorage();
 		$this->cache_key  = $cache_key ?: new CacheKey();
 		$this->file_guard = $file_guard ?: new FileGuard();
 		$this->logger     = $logger ?: new Logger();
+		$this->rules      = $rules ?: new CacheRules();
 	}
 
 	public function write(RequestContext $request, string $html): bool {
@@ -56,10 +58,10 @@ final class CacheWriter {
 		 */
 		do_action('wpxcache_before_cache_save', $request->url());
 
-		$result = $this->file_guard->write_cache_file($path, $this->add_metadata($html));
+		$result = $this->file_guard->write_cache_file($path, $this->add_metadata($html, $request));
 
 		if ($result && function_exists('gzencode')) {
-			$this->file_guard->write_cache_file($path . '.gz', gzencode($this->add_metadata($html), 6));
+			$this->file_guard->write_cache_file($path . '.gz', gzencode($this->add_metadata($html, $request), 6));
 		}
 
 		if ($result) {
@@ -78,7 +80,10 @@ final class CacheWriter {
 		return $result;
 	}
 
-	private function add_metadata(string $html): string {
-		return $html . "\n<!-- Cached by WP XCache Pro " . esc_html(WPXCACHE_VERSION) . ' -->';
+	private function add_metadata(string $html, RequestContext $request): string {
+		$ttl = $this->rules->ttl_for_request($request);
+		$expires = gmdate('c', time() + $ttl);
+
+		return $html . "\n<!-- Cached by WP XCache Pro " . esc_html(WPXCACHE_VERSION) . '; ttl=' . esc_html((string) $ttl) . '; expires=' . esc_html($expires) . ' -->';
 	}
 }

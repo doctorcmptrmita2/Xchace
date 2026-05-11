@@ -122,6 +122,27 @@ final class CacheRules {
 		return true;
 	}
 
+	public function ttl_for_request(RequestContext $request): int {
+		$ttl = isset($this->settings['cache']['ttl']) ? absint($this->settings['cache']['ttl']) : 3600;
+		$rules = is_array($this->settings['cache']['custom_ttl'] ?? null) ? $this->settings['cache']['custom_ttl'] : [];
+		$path = trailingslashit($request->path());
+
+		foreach ($rules as $rule) {
+			if (! is_array($rule) || empty($rule['pattern']) || empty($rule['ttl'])) {
+				continue;
+			}
+
+			$pattern = trailingslashit('/' . trim((string) $rule['pattern'], '/'));
+
+			if ('//' !== $pattern && 0 === strpos($path, $pattern)) {
+				$ttl = absint($rule['ttl']);
+				break;
+			}
+		}
+
+		return (int) apply_filters('wpxcache_cache_ttl', max(60, $ttl), $request->url());
+	}
+
 	private function is_rest_request(RequestContext $request): bool {
 		if (! empty($this->settings['cache']['cache_rest_api'])) {
 			return false;

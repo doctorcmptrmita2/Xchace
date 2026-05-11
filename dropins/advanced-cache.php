@@ -63,6 +63,20 @@ foreach ($wpxcache_sensitive_query as $wpxcache_key) {
 	}
 }
 
+$wpxcache_query_whitelist = isset($wpxcache_settings['query_string_whitelist']) && is_array($wpxcache_settings['query_string_whitelist'])
+	? array_map('strval', $wpxcache_settings['query_string_whitelist'])
+	: [];
+
+if ([] !== $wpxcache_query) {
+	foreach (array_keys($wpxcache_query) as $wpxcache_query_key) {
+		if (! in_array((string) $wpxcache_query_key, $wpxcache_query_whitelist, true)) {
+			return;
+		}
+	}
+
+	return;
+}
+
 $wpxcache_cookie_prefixes = isset($wpxcache_settings['never_cache_cookies']) && is_array($wpxcache_settings['never_cache_cookies'])
 	? $wpxcache_settings['never_cache_cookies']
 	: [];
@@ -78,6 +92,18 @@ foreach (array_keys($_COOKIE) as $wpxcache_cookie) {
 $wpxcache_excluded_urls = isset($wpxcache_settings['never_cache_urls']) && is_array($wpxcache_settings['never_cache_urls'])
 	? $wpxcache_settings['never_cache_urls']
 	: [];
+
+$wpxcache_excluded_agents = isset($wpxcache_settings['never_cache_user_agents']) && is_array($wpxcache_settings['never_cache_user_agents'])
+	? $wpxcache_settings['never_cache_user_agents']
+	: [];
+
+$wpxcache_user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? (string) $_SERVER['HTTP_USER_AGENT'] : '';
+
+foreach ($wpxcache_excluded_agents as $wpxcache_agent) {
+	if (is_string($wpxcache_agent) && '' !== $wpxcache_agent && false !== stripos($wpxcache_user_agent, $wpxcache_agent)) {
+		return;
+	}
+}
 
 $wpxcache_normalized_path = '/' . trim(rawurldecode($wpxcache_path), '/');
 $wpxcache_normalized_path = '/' === $wpxcache_normalized_path ? '/' : rtrim($wpxcache_normalized_path, '/');
