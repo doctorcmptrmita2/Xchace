@@ -102,7 +102,7 @@ final class SettingsManager {
 			$value = $values[$key] ?? $default;
 
 			if (is_array($default)) {
-				if ([] === $default) {
+				if ([] === $default || array_is_list($default)) {
 					$sanitized[$key] = is_array($value) ? $this->sanitize_list($value) : [];
 					continue;
 				}

@@ -90,6 +90,16 @@ final class Config {
 				'url_limit'        => 100,
 				'auto_after_purge' => false,
 			],
+			'cdn'          => [
+				'enabled'                  => false,
+				'base_url'                 => '',
+				'included_file_types'      => ['css', 'js', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'woff', 'woff2'],
+				'excluded_paths'           => ['/wp-admin', '/wp-login.php'],
+				'cloudflare_enabled'       => false,
+				'cloudflare_api_token'     => '',
+				'cloudflare_zone_id'       => '',
+				'purge_cloudflare_on_purge'=> false,
+			],
 			'advanced'     => [
 				'debug_headers' => false,
 				'debug_mode'    => false,

@@ -47,6 +47,15 @@ final class ConflictDetector {
 			];
 		}
 
+		$settings = \WPXCache\Core\Config::settings();
+
+		if (! empty($settings['cdn']['enabled']) && empty($settings['cdn']['base_url'])) {
+			$warnings[] = [
+				'level'   => 'yellow',
+				'message' => __('CDN rewrite is enabled but no CDN base URL is configured.', 'wpxcache'),
+			];
+		}
+
 		if (! empty($env['litespeed'])) {
 			$warnings[] = [
 				'level'   => 'yellow',

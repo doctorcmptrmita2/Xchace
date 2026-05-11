@@ -44,6 +44,13 @@ final class DiagnosticsReport {
 				'last_purge'       => (int) get_option('wpxcache_last_purge', 0),
 			],
 			'preload'      => (new CachePreloader($settings))->state(),
+			'cdn'          => [
+				'enabled'                  => ! empty($settings['cdn']['enabled']),
+				'base_url'                 => $settings['cdn']['base_url'] ?? '',
+				'cloudflare_enabled'       => ! empty($settings['cdn']['cloudflare_enabled']),
+				'cloudflare_zone_id'       => ! empty($settings['cdn']['cloudflare_zone_id']) ? '[masked]' : '',
+				'purge_cloudflare_on_purge'=> ! empty($settings['cdn']['purge_cloudflare_on_purge']),
+			],
 			'settings'     => $this->redacted_settings($settings),
 		];
 	}

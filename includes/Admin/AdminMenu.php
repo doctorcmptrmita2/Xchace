@@ -94,6 +94,15 @@ final class AdminMenu implements ServiceProvider {
 			'wpxcache-advanced-rules',
 			[$this, 'render_advanced_rules']
 		);
+
+		add_submenu_page(
+			'wpxcache',
+			__('CDN', 'wpxcache'),
+			__('CDN', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-cdn',
+			[$this, 'render_cdn']
+		);
 	}
 
 	public function render_dashboard(): void {
@@ -136,5 +145,11 @@ final class AdminMenu implements ServiceProvider {
 		Capability::require_manage();
 
 		(new AdvancedRulesPage())->render();
+	}
+
+	public function render_cdn(): void {
+		Capability::require_manage();
+
+		(new CdnPage())->render();
 	}
 }
