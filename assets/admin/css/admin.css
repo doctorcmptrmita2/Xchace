@@ -94,7 +94,7 @@
 .wpxcache-metrics {
 	display: grid;
 	gap: 10px;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	margin: 0;
 }
 
@@ -149,6 +149,21 @@
 	align-items: center;
 	display: flex;
 	margin: 8px 0;
+}
+
+.wpxcache-progress {
+	background: #f0f0f1;
+	border-radius: 4px;
+	height: 10px;
+	margin: 14px 0;
+	overflow: hidden;
+}
+
+.wpxcache-progress span {
+	background: #2271b1;
+	display: block;
+	height: 100%;
+	transition: width 180ms ease;
 }
 
 .wpxcache-health-list {

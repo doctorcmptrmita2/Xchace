@@ -37,6 +37,7 @@ final class DashboardPage {
 			'count'      => $storage->html_file_count(),
 			'size'       => size_format($storage->size_bytes()),
 			'last_purge' => $this->format_last_purge(),
+			'last_preload' => $this->format_timestamp((int) get_option('wpxcache_last_preload', 0)),
 		];
 
 		require WPXCACHE_PATH . 'templates/admin/dashboard.php';
@@ -83,8 +84,10 @@ final class DashboardPage {
 	}
 
 	private function format_last_purge(): string {
-		$timestamp = (int) get_option('wpxcache_last_purge', 0);
+		return $this->format_timestamp((int) get_option('wpxcache_last_purge', 0));
+	}
 
+	private function format_timestamp(int $timestamp): string {
 		if (0 === $timestamp) {
 			return __('Never', 'wpxcache');
 		}

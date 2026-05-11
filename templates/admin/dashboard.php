@@ -6,7 +6,7 @@
  *
  * @var array<string, mixed> $settings
  * @var array<int, array{id: string, label: string, status: string, problem: string, why: string, fix: string, auto_fix: bool}> $checks
- * @var array{count: int, size: string, last_purge: string} $stats
+ * @var array{count: int, size: string, last_purge: string, last_preload: string} $stats
  * @var array{exists: bool, owned: bool, wp_cache: bool, path: string, config_exists: bool, writable: bool} $dropin
  * @var array<int, array{level: string, message: string}> $conflicts
  * @var array<int, array<string, mixed>> $logs
@@ -71,6 +71,7 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 				<li><strong><?php echo esc_html(number_format_i18n($stats['count'])); ?></strong><span><?php echo esc_html__('Cached pages', 'wpxcache'); ?></span></li>
 				<li><strong><?php echo esc_html($stats['size']); ?></strong><span><?php echo esc_html__('Cache size', 'wpxcache'); ?></span></li>
 				<li><strong><?php echo esc_html($stats['last_purge']); ?></strong><span><?php echo esc_html__('Last purge', 'wpxcache'); ?></span></li>
+				<li><strong><?php echo esc_html($stats['last_preload']); ?></strong><span><?php echo esc_html__('Last preload', 'wpxcache'); ?></span></li>
 			</ul>
 		</section>
 

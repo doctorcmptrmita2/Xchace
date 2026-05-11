@@ -76,6 +76,18 @@ final class Config {
 				'price_update_purge'      => true,
 				'cart_fragment_safe_mode' => true,
 			],
+			'preload'      => [
+				'enabled'          => false,
+				'sitemap_url'      => '',
+				'preload_homepage' => true,
+				'preload_posts'    => true,
+				'preload_pages'    => true,
+				'preload_products' => false,
+				'batch_size'       => 3,
+				'delay'            => 10,
+				'url_limit'        => 100,
+				'auto_after_purge' => false,
+			],
 			'advanced'     => [
 				'debug_headers' => false,
 				'debug_mode'    => false,

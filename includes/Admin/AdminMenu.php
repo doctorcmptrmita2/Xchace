@@ -49,6 +49,15 @@ final class AdminMenu implements ServiceProvider {
 			'wpxcache-woocommerce',
 			[$this, 'render_woocommerce']
 		);
+
+		add_submenu_page(
+			'wpxcache',
+			__('Preload', 'wpxcache'),
+			__('Preload', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-preload',
+			[$this, 'render_preload']
+		);
 	}
 
 	public function render_dashboard(): void {
@@ -61,5 +70,11 @@ final class AdminMenu implements ServiceProvider {
 		Capability::require_manage();
 
 		(new WooCommercePage())->render();
+	}
+
+	public function render_preload(): void {
+		Capability::require_manage();
+
+		(new PreloadPage())->render();
 	}
 }
