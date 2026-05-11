@@ -38,11 +38,31 @@ final class CssOptimizer implements ServiceProvider {
 			return;
 		}
 
+		/**
+		 * CSS URL rewriting is intentionally opt-in at runtime. A blocked public
+		 * asset cache path can remove all theme styles, so safe mode keeps the
+		 * saved settings visible without touching frontend CSS delivery.
+		 *
+		 * @param bool $enabled Whether CSS runtime optimization is enabled.
+		 */
+		$runtime_enabled = (bool) apply_filters('wpxcache_enable_css_runtime_optimization', false);
+
+		if (! $runtime_enabled) {
+			return;
+		}
+
 		if (! empty($this->settings['optimization']['minify_css'])) {
 			add_filter('style_loader_src', [$this, 'minify_src'], 20, 2);
 		}
 
-		if (! empty($this->settings['optimization']['defer_css'])) {
+		/**
+		 * CSS defer can cause visible layout breakage without Critical CSS.
+		 *
+		 * @param bool $enabled Whether CSS defer is allowed.
+		 */
+		$defer_enabled = (bool) apply_filters('wpxcache_enable_css_defer_runtime', false);
+
+		if ($defer_enabled && ! empty($this->settings['optimization']['defer_css'])) {
 			add_filter('style_loader_tag', [$this, 'defer_tag'], 20, 4);
 		}
 	}
