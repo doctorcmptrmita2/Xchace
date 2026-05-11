@@ -241,6 +241,27 @@
 	margin-top: 4px;
 }
 
+.wpxcache-field-grid {
+	display: grid;
+	gap: 16px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wpxcache-field-grid label,
+.wpxcache-field-grid span {
+	display: block;
+}
+
+.wpxcache-field-grid strong {
+	display: block;
+	margin-bottom: 8px;
+}
+
+.wpxcache-field-grid span {
+	color: #646970;
+	margin-top: 6px;
+}
+
 @media (max-width: 782px) {
 	.wpxcache-header,
 	.wpxcache-grid {
@@ -256,6 +277,10 @@
 	}
 
 	.wpxcache-health-list {
+		grid-template-columns: 1fr;
+	}
+
+	.wpxcache-field-grid {
 		grid-template-columns: 1fr;
 	}
 }

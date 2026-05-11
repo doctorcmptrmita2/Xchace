@@ -15,14 +15,16 @@ if (! defined('ABSPATH')) {
 }
 
 $optimization = is_array($settings['optimization'] ?? null) ? $settings['optimization'] : [];
+$exclude_css = is_array($optimization['exclude_css'] ?? null) ? implode("\n", array_map('strval', $optimization['exclude_css'])) : '';
+$exclude_js = is_array($optimization['exclude_js'] ?? null) ? implode("\n", array_map('strval', $optimization['exclude_js'])) : '';
 $items = [
 	['key' => 'minify_html', 'label' => __('Minify HTML', 'wpxcache'), 'enabled' => ! empty($optimization['minify_html']), 'risk' => 'Safe', 'message' => __('HTML comments and unnecessary whitespace are reduced conservatively.', 'wpxcache')],
-	['key' => 'minify_css', 'label' => __('Minify CSS', 'wpxcache'), 'enabled' => ! empty($optimization['minify_css']), 'risk' => 'Medium', 'message' => __('CSS minify is saved as a setting; runtime optimizer will be expanded in a later part.', 'wpxcache')],
-	['key' => 'combine_css', 'label' => __('Combine CSS', 'wpxcache'), 'enabled' => ! empty($optimization['combine_css']), 'risk' => 'Risky', 'message' => __('This may break layouts on some themes. It is never enabled automatically.', 'wpxcache')],
-	['key' => 'defer_css', 'label' => __('Defer CSS', 'wpxcache'), 'enabled' => ! empty($optimization['defer_css']), 'risk' => 'Risky', 'message' => __('This can cause visual shifts and should be tested carefully.', 'wpxcache')],
-	['key' => 'minify_js', 'label' => __('Minify JS', 'wpxcache'), 'enabled' => ! empty($optimization['minify_js']), 'risk' => 'Medium', 'message' => __('JavaScript minify is saved as a setting; payment and form scripts must stay protected.', 'wpxcache')],
-	['key' => 'defer_js', 'label' => __('Defer JS', 'wpxcache'), 'enabled' => ! empty($optimization['defer_js']), 'risk' => 'Risky', 'message' => __('This may affect menus, forms, popups, checkout and cart behavior.', 'wpxcache')],
-	['key' => 'delay_js', 'label' => __('Delay JS execution', 'wpxcache'), 'enabled' => ! empty($optimization['delay_js']), 'risk' => 'Risky', 'message' => __('This can break interactive behavior and is never enabled automatically.', 'wpxcache')],
+	['key' => 'minify_css', 'label' => __('Minify CSS', 'wpxcache'), 'enabled' => ! empty($optimization['minify_css']), 'risk' => 'Medium', 'message' => __('Local CSS files are copied to a cache-safe minified version when possible.', 'wpxcache')],
+	['key' => 'combine_css', 'label' => __('Combine CSS', 'wpxcache'), 'enabled' => ! empty($optimization['combine_css']), 'risk' => 'Risky', 'message' => __('Saved for compatibility planning; combine runtime will be added after stronger exclusions.', 'wpxcache')],
+	['key' => 'defer_css', 'label' => __('Defer CSS', 'wpxcache'), 'enabled' => ! empty($optimization['defer_css']), 'risk' => 'Risky', 'message' => __('Loads eligible stylesheets through preload. Test visual layout carefully.', 'wpxcache')],
+	['key' => 'minify_js', 'label' => __('Minify JS', 'wpxcache'), 'enabled' => ! empty($optimization['minify_js']), 'risk' => 'Medium', 'message' => __('Local JS files are compacted conservatively; protected scripts are skipped in Safe Mode.', 'wpxcache')],
+	['key' => 'defer_js', 'label' => __('Defer JS', 'wpxcache'), 'enabled' => ! empty($optimization['defer_js']), 'risk' => 'Risky', 'message' => __('Adds defer only to eligible scripts. Checkout, cart, forms and payment scripts stay protected.', 'wpxcache')],
+	['key' => 'delay_js', 'label' => __('Delay JS execution', 'wpxcache'), 'enabled' => ! empty($optimization['delay_js']), 'risk' => 'Risky', 'message' => __('Saved as a setting; delay runtime needs per-plugin compatibility rules before activation.', 'wpxcache')],
 	['key' => 'remove_generator', 'label' => __('Remove generator meta', 'wpxcache'), 'enabled' => ! empty($optimization['remove_generator']), 'risk' => 'Safe', 'message' => __('Removes the WordPress generator meta output.', 'wpxcache')],
 ];
 ?>
@@ -65,6 +67,32 @@ $items = [
 			</div>
 			<div class="wpxcache-actions">
 				<button class="button button-primary" type="submit" name="wpxcache_action" value="save_optimization_settings"><?php echo esc_html__('Save file optimization settings', 'wpxcache'); ?></button>
+			</div>
+		</form>
+	</section>
+
+	<section class="wpxcache-panel wpxcache-panel-wide">
+		<h2><?php echo esc_html__('Exclusions', 'wpxcache'); ?></h2>
+		<form method="post">
+			<?php \WPXCache\Security\Nonce::field(); ?>
+			<?php foreach ($items as $item) : ?>
+				<input type="hidden" name="<?php echo esc_attr($item['key']); ?>" value="<?php echo ! empty($item['enabled']) ? '1' : ''; ?>">
+			<?php endforeach; ?>
+			<input type="hidden" name="safe_mode" value="<?php echo ! empty($optimization['safe_mode']) ? '1' : ''; ?>">
+			<div class="wpxcache-field-grid">
+				<label>
+					<strong><?php echo esc_html__('Never optimize CSS containing', 'wpxcache'); ?></strong>
+					<textarea class="large-text code" rows="6" name="exclude_css"><?php echo esc_textarea($exclude_css); ?></textarea>
+					<span><?php echo esc_html__('One handle, URL part, or filename per line.', 'wpxcache'); ?></span>
+				</label>
+				<label>
+					<strong><?php echo esc_html__('Never optimize JS containing', 'wpxcache'); ?></strong>
+					<textarea class="large-text code" rows="6" name="exclude_js"><?php echo esc_textarea($exclude_js); ?></textarea>
+					<span><?php echo esc_html__('Use this for sliders, forms, checkout scripts, ads, or custom dynamic scripts.', 'wpxcache'); ?></span>
+				</label>
+			</div>
+			<div class="wpxcache-actions">
+				<button class="button button-primary" type="submit" name="wpxcache_action" value="save_optimization_settings"><?php echo esc_html__('Save exclusions', 'wpxcache'); ?></button>
 			</div>
 		</form>
 	</section>

@@ -17,7 +17,9 @@ use WPXCache\Cache\CachePreloader;
 use WPXCache\Cdn\CdnManager;
 use WPXCache\Cli\WpCliCommands;
 use WPXCache\Compatibility\WooCommerce;
+use WPXCache\Optimization\CssOptimizer;
 use WPXCache\Optimization\HtmlMinifier;
+use WPXCache\Optimization\JsOptimizer;
 use WPXCache\Optimization\LazyLoad;
 use WPXCache\Optimization\WordPressCleanup;
 use WPXCache\Purge\SmartPurge;
@@ -43,6 +45,8 @@ final class Plugin {
 		(new CachePreloader())->register();
 		(new WooCommerce())->register();
 		(new HtmlMinifier())->register();
+		(new CssOptimizer())->register();
+		(new JsOptimizer())->register();
 		(new LazyLoad())->register();
 		(new WordPressCleanup())->register();
 		(new SmartPurge())->register();

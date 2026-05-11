@@ -53,6 +53,14 @@ final class OptimizationPage {
 		$settings['optimization']['remove_generator'] = $this->posted_checkbox('remove_generator');
 		$settings['optimization']['safe_mode'] = $this->posted_checkbox('safe_mode');
 
+		if (filter_has_var(INPUT_POST, 'exclude_css')) {
+			$settings['optimization']['exclude_css'] = $this->posted_list('exclude_css');
+		}
+
+		if (filter_has_var(INPUT_POST, 'exclude_js')) {
+			$settings['optimization']['exclude_js'] = $this->posted_list('exclude_js');
+		}
+
 		update_option(Config::OPTION_NAME, $settings, false);
 		(new Logger())->info('File optimization settings saved.');
 
@@ -63,6 +71,42 @@ final class OptimizationPage {
 	}
 
 	private function posted_checkbox(string $key): bool {
-		return filter_has_var(INPUT_POST, $key);
+		$value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+
+		if (! is_string($value)) {
+			return false;
+		}
+
+		return (bool) rest_sanitize_boolean(wp_unslash($value));
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private function posted_list(string $key): array {
+		$raw = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+
+		if (! is_string($raw)) {
+			return [];
+		}
+
+		$raw = wp_unslash($raw);
+		$items = preg_split('/[\r\n,]+/', $raw);
+
+		if (! is_array($items)) {
+			return [];
+		}
+
+		$sanitized = [];
+
+		foreach ($items as $item) {
+			$item = sanitize_text_field(trim((string) $item));
+
+			if ('' !== $item) {
+				$sanitized[] = $item;
+			}
+		}
+
+		return array_values(array_unique($sanitized));
 	}
 }
