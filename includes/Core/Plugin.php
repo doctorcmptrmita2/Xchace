@@ -15,6 +15,9 @@ use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\PageCache;
 use WPXCache\Cache\CachePreloader;
 use WPXCache\Compatibility\WooCommerce;
+use WPXCache\Optimization\HtmlMinifier;
+use WPXCache\Optimization\LazyLoad;
+use WPXCache\Optimization\WordPressCleanup;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -35,6 +38,9 @@ final class Plugin {
 		(new PageCache())->register();
 		(new CachePreloader())->register();
 		(new WooCommerce())->register();
+		(new HtmlMinifier())->register();
+		(new LazyLoad())->register();
+		(new WordPressCleanup())->register();
 		add_action('update_option_' . Config::OPTION_NAME, [$this, 'sync_dropin_config'], 10, 0);
 
 		if (is_admin()) {

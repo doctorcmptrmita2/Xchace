@@ -58,6 +58,24 @@ final class AdminMenu implements ServiceProvider {
 			'wpxcache-preload',
 			[$this, 'render_preload']
 		);
+
+		add_submenu_page(
+			'wpxcache',
+			__('File Optimization', 'wpxcache'),
+			__('File Optimization', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-optimization',
+			[$this, 'render_optimization']
+		);
+
+		add_submenu_page(
+			'wpxcache',
+			__('Media', 'wpxcache'),
+			__('Media', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-media',
+			[$this, 'render_media']
+		);
 	}
 
 	public function render_dashboard(): void {
@@ -76,5 +94,17 @@ final class AdminMenu implements ServiceProvider {
 		Capability::require_manage();
 
 		(new PreloadPage())->render();
+	}
+
+	public function render_optimization(): void {
+		Capability::require_manage();
+
+		(new OptimizationPage())->render();
+	}
+
+	public function render_media(): void {
+		Capability::require_manage();
+
+		(new MediaPage())->render();
 	}
 }

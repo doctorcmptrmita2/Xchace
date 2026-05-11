@@ -181,6 +181,7 @@
 .wpxcache-health-heading {
 	align-items: center;
 	display: flex;
+	gap: 8px;
 	margin-bottom: 8px;
 }
 
@@ -194,6 +195,31 @@
 	display: block;
 	line-height: 1.45;
 	margin-top: 4px;
+}
+
+.wpxcache-risk {
+	border-radius: 4px;
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 5px 7px;
+	text-transform: uppercase;
+}
+
+.wpxcache-risk.is-safe {
+	background: #edfaef;
+	color: #0a6b22;
+}
+
+.wpxcache-risk.is-medium {
+	background: #fff8e5;
+	color: #7a4d00;
+}
+
+.wpxcache-risk.is-risky {
+	background: #fcf0f1;
+	color: #8a2424;
 }
 
 @media (max-width: 782px) {

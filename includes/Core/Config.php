@@ -59,6 +59,7 @@ final class Config {
 				'minify_js'          => false,
 				'defer_js'           => false,
 				'delay_js'           => false,
+				'remove_generator'   => false,
 				'safe_mode'          => true,
 			],
 			'media'        => [
