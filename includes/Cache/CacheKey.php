@@ -44,14 +44,14 @@ final class CacheKey {
 	}
 
 	public function relative_path(RequestContext $request): string {
-		$host = sanitize_file_name($request->host());
+		$host = $this->sanitize_segment($request->host());
 		$path = trim($this->normalize_path($request->path()), '/');
 
 		if ('' === $path) {
 			$path = 'home';
 		}
 
-		$segments = array_map('sanitize_file_name', explode('/', $path));
+		$segments = array_map([$this, 'sanitize_segment'], explode('/', $path));
 		$relative = $host . '/' . implode('/', array_filter($segments));
 		$query = $this->whitelisted_query_string($request);
 		$device = $this->device_vary($request);
@@ -91,5 +91,11 @@ final class CacheKey {
 		}
 
 		return wp_is_mobile() || preg_match('/Mobile|Android|iPhone|iPad/i', $request->user_agent()) ? 'mobile' : 'desktop';
+	}
+
+	private function sanitize_segment(string $segment): string {
+		$segment = preg_replace('/[^A-Za-z0-9_\-\.]/', '-', $segment);
+
+		return is_string($segment) && '' !== $segment ? $segment : 'page';
 	}
 }

@@ -79,6 +79,13 @@
 	margin-left: 18px;
 }
 
+.wpxcache-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
+}
+
 .wpxcache-metrics {
 	display: grid;
 	gap: 10px;
@@ -127,6 +134,16 @@
 
 .wpxcache-dot.is-red {
 	background: #d63638;
+}
+
+.wpxcache-warning-list {
+	margin: 0;
+}
+
+.wpxcache-warning-list li {
+	align-items: center;
+	display: flex;
+	margin: 8px 0;
 }
 
 @media (max-width: 782px) {

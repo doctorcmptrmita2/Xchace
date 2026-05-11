@@ -7,6 +7,9 @@
  * @var array<string, mixed> $settings
  * @var array<int, array{label: string, status: string, message: string}> $checks
  * @var array{count: int, size: string, last_purge: string} $stats
+ * @var array{exists: bool, owned: bool, wp_cache: bool, path: string, config_exists: bool, writable: bool} $dropin
+ * @var array<int, array{level: string, message: string}> $conflicts
+ * @var array{type: string, message: string}|null $notice
  */
 
 declare(strict_types=1);
@@ -22,6 +25,12 @@ $cache_status_label  = $cache_enabled ? __('Enabled', 'wpxcache') : __('Disabled
 $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 ?>
 <div class="wrap wpxcache-admin">
+	<?php if (is_array($notice)) : ?>
+		<div class="notice notice-<?php echo esc_attr($notice['type']); ?> is-dismissible">
+			<p><?php echo esc_html($notice['message']); ?></p>
+		</div>
+	<?php endif; ?>
+
 	<div class="wpxcache-header">
 		<div>
 			<h1><?php echo esc_html__('WP XCache Pro', 'wpxcache'); ?></h1>
@@ -65,6 +74,31 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 		</section>
 
 		<section class="wpxcache-panel">
+			<h2><?php echo esc_html__('Advanced Cache Drop-in', 'wpxcache'); ?></h2>
+			<div class="wpxcache-status <?php echo esc_attr($dropin['exists'] && $dropin['owned'] ? 'is-green' : 'is-yellow'); ?>">
+				<span>
+					<?php
+					echo esc_html(
+						$dropin['exists'] && $dropin['owned']
+							? __('Installed', 'wpxcache')
+							: __('Not installed', 'wpxcache')
+					);
+					?>
+				</span>
+			</div>
+			<p><?php echo esc_html($dropin['wp_cache'] ? __('WP_CACHE is enabled.', 'wpxcache') : __('WP_CACHE is not enabled yet.', 'wpxcache')); ?></p>
+			<form method="post" class="wpxcache-actions">
+				<?php \WPXCache\Security\Nonce::field(); ?>
+				<button class="button button-primary" type="submit" name="wpxcache_action" value="<?php echo esc_attr($dropin['exists'] && $dropin['owned'] ? 'regenerate_dropin' : 'install_dropin'); ?>">
+					<?php echo esc_html($dropin['exists'] && $dropin['owned'] ? __('Regenerate drop-in', 'wpxcache') : __('Install drop-in', 'wpxcache')); ?>
+				</button>
+				<button class="button" type="submit" name="wpxcache_action" value="remove_dropin">
+					<?php echo esc_html__('Remove drop-in', 'wpxcache'); ?>
+				</button>
+			</form>
+		</section>
+
+		<section class="wpxcache-panel">
 			<h2><?php echo esc_html__('WooCommerce Safety', 'wpxcache'); ?></h2>
 			<div class="wpxcache-status <?php echo esc_attr($woocommerce_safe ? 'is-green' : 'is-yellow'); ?>">
 				<span><?php echo esc_html($woocommerce_safe ? __('Safe Mode On', 'wpxcache') : __('Safe Mode Off', 'wpxcache')); ?></span>
@@ -85,5 +119,18 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+	</section>
+
+	<section class="wpxcache-panel wpxcache-panel-wide">
+		<h2><?php echo esc_html__('Warnings', 'wpxcache'); ?></h2>
+		<?php if ([] === $conflicts) : ?>
+			<p><?php echo esc_html__('No cache conflicts detected in the current foundation checks.', 'wpxcache'); ?></p>
+		<?php else : ?>
+			<ul class="wpxcache-warning-list">
+				<?php foreach ($conflicts as $conflict) : ?>
+					<li><span class="wpxcache-dot is-<?php echo esc_attr($conflict['level']); ?>"></span><?php echo esc_html($conflict['message']); ?></li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
 	</section>
 </div>

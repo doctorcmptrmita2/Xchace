@@ -11,6 +11,7 @@ namespace WPXCache\Core;
 
 use WPXCache\Admin\AdminMenu;
 use WPXCache\Admin\Assets;
+use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\PageCache;
 
 if (! defined('ABSPATH')) {
@@ -30,10 +31,15 @@ final class Plugin {
 
 	public function boot(): void {
 		(new PageCache())->register();
+		add_action('update_option_' . Config::OPTION_NAME, [$this, 'sync_dropin_config'], 10, 0);
 
 		if (is_admin()) {
 			(new Assets())->register();
 			(new AdminMenu())->register();
 		}
+	}
+
+	public function sync_dropin_config(): void {
+		(new AdvancedCacheInstaller())->write_config();
 	}
 }

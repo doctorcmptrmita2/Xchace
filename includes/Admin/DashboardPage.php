@@ -9,8 +9,12 @@ declare(strict_types=1);
 
 namespace WPXCache\Admin;
 
+use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\CacheStorage;
 use WPXCache\Core\Config;
+use WPXCache\Diagnostics\ConflictDetector;
+use WPXCache\Security\Capability;
+use WPXCache\Security\Nonce;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -18,9 +22,14 @@ if (! defined('ABSPATH')) {
 
 final class DashboardPage {
 	public function render(): void {
+		Capability::require_manage();
+
+		$notice = $this->handle_action();
 		$settings = Config::settings();
 		$checks   = $this->get_foundation_checks();
 		$storage  = new CacheStorage();
+		$dropin   = (new AdvancedCacheInstaller())->status();
+		$conflicts = (new ConflictDetector())->detect();
 		$stats    = [
 			'count'      => $storage->html_file_count(),
 			'size'       => size_format($storage->size_bytes()),
@@ -28,6 +37,46 @@ final class DashboardPage {
 		];
 
 		require WPXCACHE_PATH . 'templates/admin/dashboard.php';
+	}
+
+	private function handle_action(): ?array {
+		$action = filter_input(INPUT_POST, 'wpxcache_action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+		if (! is_string($action) || '' === $action) {
+			return null;
+		}
+
+		if (! Nonce::verify_request()) {
+			return [
+				'type'    => 'error',
+				'message' => __('Security check failed. Please refresh the page and try again.', 'wpxcache'),
+			];
+		}
+
+		$installer = new AdvancedCacheInstaller();
+
+		if ('install_dropin' === $action || 'regenerate_dropin' === $action) {
+			$result = $installer->install();
+
+			return [
+				'type'    => $result['success'] ? 'success' : 'error',
+				'message' => $result['message'],
+			];
+		}
+
+		if ('remove_dropin' === $action) {
+			$result = $installer->remove();
+
+			return [
+				'type'    => $result['success'] ? 'success' : 'error',
+				'message' => $result['message'],
+			];
+		}
+
+		return [
+			'type'    => 'error',
+			'message' => __('Unknown WP XCache action.', 'wpxcache'),
+		];
 	}
 
 	/**
@@ -62,6 +111,11 @@ final class DashboardPage {
 				'label'   => __('Log directory', 'wpxcache'),
 				'status'  => is_dir(WPXCACHE_LOG_DIR) && wp_is_writable(WPXCACHE_LOG_DIR) ? 'green' : 'yellow',
 				'message' => WPXCACHE_LOG_DIR,
+			],
+			[
+				'label'   => __('WP_CACHE constant', 'wpxcache'),
+				'status'  => defined('WP_CACHE') && WP_CACHE ? 'green' : 'yellow',
+				'message' => defined('WP_CACHE') && WP_CACHE ? __('Enabled', 'wpxcache') : __('Not enabled', 'wpxcache'),
 			],
 		];
 	}
