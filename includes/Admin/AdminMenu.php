@@ -112,6 +112,15 @@ final class AdminMenu implements ServiceProvider {
 			'wpxcache-cdn',
 			[$this, 'render_cdn']
 		);
+
+		add_submenu_page(
+			'wpxcache',
+			__('Database', 'wpxcache'),
+			__('Database', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-database',
+			[$this, 'render_database']
+		);
 	}
 
 	public function render_dashboard(): void {
@@ -166,5 +175,11 @@ final class AdminMenu implements ServiceProvider {
 		Capability::require_manage();
 
 		(new CdnPage())->render();
+	}
+
+	public function render_database(): void {
+		Capability::require_manage();
+
+		(new DatabasePage())->render();
 	}
 }

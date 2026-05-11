@@ -13,6 +13,7 @@ use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\CachePreloader;
 use WPXCache\Cache\CacheStorage;
 use WPXCache\Core\Config;
+use WPXCache\Database\DatabaseCleaner;
 use WPXCache\Profile\ProfileEngine;
 
 if (! defined('ABSPATH')) {
@@ -50,6 +51,9 @@ final class DiagnosticsReport {
 				'cloudflare_enabled'       => ! empty($settings['cdn']['cloudflare_enabled']),
 				'cloudflare_zone_id'       => ! empty($settings['cdn']['cloudflare_zone_id']) ? '[masked]' : '',
 				'purge_cloudflare_on_purge'=> ! empty($settings['cdn']['purge_cloudflare_on_purge']),
+			],
+			'database'     => [
+				'cleanup_counts' => (new DatabaseCleaner())->counts(),
 			],
 			'settings'     => $this->redacted_settings($settings),
 		];
