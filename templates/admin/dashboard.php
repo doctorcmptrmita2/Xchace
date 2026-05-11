@@ -6,6 +6,7 @@
  *
  * @var array<string, mixed> $settings
  * @var array<int, array{label: string, status: string, message: string}> $checks
+ * @var array{count: int, size: string, last_purge: string} $stats
  */
 
 declare(strict_types=1);
@@ -35,7 +36,7 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 			<div class="wpxcache-status <?php echo esc_attr($cache_status_class); ?>">
 				<span><?php echo esc_html($cache_status_label); ?></span>
 			</div>
-			<p><?php echo esc_html__('Page cache Part 2’de eklenecek. Part 1 güvenli temel ve yönetim ekranını hazırlar.', 'wpxcache'); ?></p>
+			<p><?php echo esc_html__('Page cache motoru hazır. Varsayılan olarak kapalıdır; güvenli ayarlar ekranı Part 3 sonrası genişletilecek.', 'wpxcache'); ?></p>
 		</section>
 
 		<section class="wpxcache-panel">
@@ -52,6 +53,15 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 			<h2><?php echo esc_html__('Smart Optimize', 'wpxcache'); ?></h2>
 			<p><?php echo esc_html__('Akıllı profil motoru ileriki partlarda site tipini analiz edip güvenli öneriler sunacak.', 'wpxcache'); ?></p>
 			<button class="button button-primary" type="button" disabled><?php echo esc_html__('Smart Optimize', 'wpxcache'); ?></button>
+		</section>
+
+		<section class="wpxcache-panel">
+			<h2><?php echo esc_html__('Performance Snapshot', 'wpxcache'); ?></h2>
+			<ul class="wpxcache-metrics">
+				<li><strong><?php echo esc_html(number_format_i18n($stats['count'])); ?></strong><span><?php echo esc_html__('Cached pages', 'wpxcache'); ?></span></li>
+				<li><strong><?php echo esc_html($stats['size']); ?></strong><span><?php echo esc_html__('Cache size', 'wpxcache'); ?></span></li>
+				<li><strong><?php echo esc_html($stats['last_purge']); ?></strong><span><?php echo esc_html__('Last purge', 'wpxcache'); ?></span></li>
+			</ul>
 		</section>
 
 		<section class="wpxcache-panel">

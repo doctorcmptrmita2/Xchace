@@ -21,19 +21,21 @@ final class FileGuard {
 	}
 
 	public function ensure_directory(string $path): bool {
-		if (! $this->path_validator->is_within(dirname($path), WP_CONTENT_DIR) && ! $this->path_validator->is_within($path, WP_CONTENT_DIR)) {
+		$normalized_path = wp_normalize_path($path);
+
+		if (! $this->path_validator->is_potentially_within($normalized_path, WP_CONTENT_DIR)) {
 			return false;
 		}
 
-		if (is_link($path)) {
+		if (is_link($normalized_path)) {
 			return false;
 		}
 
-		if (! is_dir($path)) {
-			return wp_mkdir_p($path);
+		if (! is_dir($normalized_path)) {
+			return wp_mkdir_p($normalized_path);
 		}
 
-		return wp_is_writable($path);
+		return wp_is_writable($normalized_path);
 	}
 
 	public function can_write_cache_path(string $path): bool {

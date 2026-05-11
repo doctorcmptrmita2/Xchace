@@ -42,4 +42,17 @@ final class PathValidator {
 	public function is_safe_cache_path(string $path): bool {
 		return $this->is_within($path, WPXCACHE_CACHE_DIR);
 	}
+
+	public function is_potentially_within(string $path, string $base): bool {
+		$real_base = realpath($base);
+
+		if (false === $real_base) {
+			return false;
+		}
+
+		$path = wp_normalize_path($path);
+		$base = wp_normalize_path($real_base);
+
+		return 0 === strpos($path, rtrim($base, '/') . '/') || $path === $base;
+	}
 }

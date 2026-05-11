@@ -79,6 +79,36 @@
 	margin-left: 18px;
 }
 
+.wpxcache-metrics {
+	display: grid;
+	gap: 10px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin: 0;
+}
+
+.wpxcache-metrics li {
+	background: #f6f7f7;
+	border-radius: 4px;
+	margin: 0;
+	padding: 10px;
+}
+
+.wpxcache-metrics strong,
+.wpxcache-metrics span {
+	display: block;
+}
+
+.wpxcache-metrics strong {
+	color: #1d2327;
+	font-size: 18px;
+	line-height: 1.3;
+}
+
+.wpxcache-metrics span {
+	color: #646970;
+	font-size: 12px;
+}
+
 .wpxcache-dot {
 	border-radius: 50%;
 	display: inline-block;
@@ -107,5 +137,9 @@
 
 	.wpxcache-panel {
 		margin-bottom: 16px;
+	}
+
+	.wpxcache-metrics {
+		grid-template-columns: 1fr;
 	}
 }

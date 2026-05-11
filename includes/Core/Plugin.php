@@ -11,6 +11,7 @@ namespace WPXCache\Core;
 
 use WPXCache\Admin\AdminMenu;
 use WPXCache\Admin\Assets;
+use WPXCache\Cache\PageCache;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -28,6 +29,8 @@ final class Plugin {
 	}
 
 	public function boot(): void {
+		(new PageCache())->register();
+
 		if (is_admin()) {
 			(new Assets())->register();
 			(new AdminMenu())->register();

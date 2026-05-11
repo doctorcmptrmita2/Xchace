@@ -62,3 +62,59 @@ add_action(
 		WPXCache\Core\Plugin::instance()->boot();
 	}
 );
+
+if (! function_exists('wpxcache_purge_all')) {
+	/**
+	 * Purge all WP XCache generated cache files.
+	 */
+	function wpxcache_purge_all(): bool {
+		if (! class_exists('WPXCache\\Cache\\CachePurger')) {
+			return false;
+		}
+
+		return (new WPXCache\Cache\CachePurger())->purge_all();
+	}
+}
+
+if (! function_exists('wpxcache_is_cache_enabled')) {
+	/**
+	 * Return whether page cache is enabled in plugin settings.
+	 */
+	function wpxcache_is_cache_enabled(): bool {
+		if (! class_exists('WPXCache\\Core\\Config')) {
+			return false;
+		}
+
+		$settings = WPXCache\Core\Config::settings();
+
+		return ! empty($settings['cache']['enabled']);
+	}
+}
+
+if (! function_exists('wpxcache_get_cache_status')) {
+	/**
+	 * Return a compact cache status snapshot.
+	 *
+	 * @return array{enabled: bool, cached_pages: int, cache_size_bytes: int, last_purge: int}
+	 */
+	function wpxcache_get_cache_status(): array {
+		if (! class_exists('WPXCache\\Core\\Config') || ! class_exists('WPXCache\\Cache\\CacheStorage')) {
+			return [
+				'enabled'          => false,
+				'cached_pages'     => 0,
+				'cache_size_bytes' => 0,
+				'last_purge'       => 0,
+			];
+		}
+
+		$settings = WPXCache\Core\Config::settings();
+		$storage  = new WPXCache\Cache\CacheStorage();
+
+		return [
+			'enabled'          => ! empty($settings['cache']['enabled']),
+			'cached_pages'     => $storage->html_file_count(),
+			'cache_size_bytes' => $storage->size_bytes(),
+			'last_purge'       => (int) get_option('wpxcache_last_purge', 0),
+		];
+	}
+}
