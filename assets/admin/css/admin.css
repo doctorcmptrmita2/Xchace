@@ -227,6 +227,20 @@
 	color: #8a2424 !important;
 }
 
+.wpxcache-toggle-row {
+	background: #f6f7f7;
+	border-radius: 4px;
+	display: block;
+	margin-bottom: 14px;
+	padding: 12px;
+}
+
+.wpxcache-toggle-row span {
+	color: #646970;
+	display: block;
+	margin-top: 4px;
+}
+
 @media (max-width: 782px) {
 	.wpxcache-header,
 	.wpxcache-grid {

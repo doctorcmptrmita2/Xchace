@@ -15,6 +15,7 @@ use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\PageCache;
 use WPXCache\Cache\CachePreloader;
 use WPXCache\Cdn\CdnManager;
+use WPXCache\Cli\WpCliCommands;
 use WPXCache\Compatibility\WooCommerce;
 use WPXCache\Optimization\HtmlMinifier;
 use WPXCache\Optimization\LazyLoad;
@@ -48,6 +49,10 @@ final class Plugin {
 		(new RestController())->register();
 		(new CdnManager())->register();
 		add_action('update_option_' . Config::OPTION_NAME, [$this, 'sync_dropin_config'], 10, 0);
+
+		if (defined('WP_CLI') && WP_CLI) {
+			(new WpCliCommands())->register();
+		}
 
 		if (is_admin()) {
 			(new Assets())->register();
