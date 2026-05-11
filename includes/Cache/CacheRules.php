@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace WPXCache\Cache;
 
+use WPXCache\Compatibility\WooCommerce;
 use WPXCache\Core\Config;
 
 if (! defined('ABSPATH')) {
@@ -40,8 +41,9 @@ final class CacheRules {
 	/**
 	 * @param array<string, mixed>|null $settings
 	 */
-	public function __construct(private ?array $settings = null) {
+	public function __construct(private ?array $settings = null, private ?WooCommerce $woocommerce = null) {
 		$this->settings = $settings ?: Config::settings();
+		$this->woocommerce = $woocommerce ?: new WooCommerce($this->settings);
 	}
 
 	public function should_cache(RequestContext $request): bool {
@@ -91,7 +93,7 @@ final class CacheRules {
 			$should_cache = false;
 		}
 
-		if ($this->is_woocommerce_dynamic_request($request)) {
+		if ($this->woocommerce->should_bypass_request($request)) {
 			$should_cache = false;
 		}
 
@@ -206,24 +208,4 @@ final class CacheRules {
 		return isset($headers['cache-control']) && preg_match('/no-store|no-cache/i', $headers['cache-control']);
 	}
 
-	private function is_woocommerce_dynamic_request(RequestContext $request): bool {
-		if (empty($this->settings['woocommerce']['safe_mode'])) {
-			return false;
-		}
-
-		if (function_exists('is_cart') && (is_cart() || is_checkout() || is_account_page())) {
-			return true;
-		}
-
-		$path = trim($request->path(), '/');
-		$dynamic_paths = ['cart', 'checkout', 'my-account', 'order-received'];
-
-		foreach ($dynamic_paths as $dynamic_path) {
-			if ($path === $dynamic_path || str_starts_with($path, $dynamic_path . '/')) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 }

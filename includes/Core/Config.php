@@ -70,6 +70,8 @@ final class Config {
 			],
 			'woocommerce'  => [
 				'safe_mode'               => true,
+				'product_cache_ttl'       => 3600,
+				'shop_archive_cache_ttl'  => 3600,
 				'stock_update_purge'      => true,
 				'price_update_purge'      => true,
 				'cart_fragment_safe_mode' => true,

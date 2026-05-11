@@ -74,6 +74,11 @@
 	color: #7a4d00;
 }
 
+.wpxcache-status.is-red {
+	background: #fcf0f1;
+	color: #8a2424;
+}
+
 .wpxcache-list {
 	list-style: disc;
 	margin-left: 18px;

@@ -13,6 +13,7 @@ use WPXCache\Admin\AdminMenu;
 use WPXCache\Admin\Assets;
 use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\PageCache;
+use WPXCache\Compatibility\WooCommerce;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -31,6 +32,7 @@ final class Plugin {
 
 	public function boot(): void {
 		(new PageCache())->register();
+		(new WooCommerce())->register();
 		add_action('update_option_' . Config::OPTION_NAME, [$this, 'sync_dropin_config'], 10, 0);
 
 		if (is_admin()) {

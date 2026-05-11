@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace WPXCache\Diagnostics;
 
 use WPXCache\Cache\AdvancedCacheInstaller;
+use WPXCache\Compatibility\WooCommerce;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -22,6 +23,7 @@ final class HealthCheck {
 	public function checks(): array {
 		$env = (new EnvironmentScanner())->scan();
 		$dropin = (new AdvancedCacheInstaller())->status();
+		$woocommerce = new WooCommerce();
 		$checks = [];
 
 		$checks[] = $this->item(
@@ -97,7 +99,7 @@ final class HealthCheck {
 		$checks[] = $this->item(
 			'woocommerce',
 			__('WooCommerce safe exclusions', 'wpxcache'),
-			$env['woocommerce'] ? 'green' : 'green',
+			$woocommerce->safe_mode_enabled() ? 'green' : 'red',
 			__('WooCommerce dynamic pages must stay excluded from cache.', 'wpxcache'),
 			__('Cart, checkout, account and session cookies contain user-specific data.', 'wpxcache'),
 			__('Keep WooCommerce Safe Mode enabled unless a developer has audited the store.', 'wpxcache'),

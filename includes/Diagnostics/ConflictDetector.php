@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace WPXCache\Diagnostics;
 
 use WPXCache\Cache\AdvancedCacheInstaller;
+use WPXCache\Compatibility\WooCommerce;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -23,6 +24,7 @@ final class ConflictDetector {
 		$warnings = [];
 		$status = (new AdvancedCacheInstaller())->status();
 		$env = (new EnvironmentScanner())->scan();
+		$woocommerce = new WooCommerce();
 
 		if ($status['exists'] && ! $status['owned']) {
 			$warnings[] = [
@@ -56,6 +58,13 @@ final class ConflictDetector {
 			$warnings[] = [
 				'level'   => 'green',
 				'message' => __('External object cache appears to be active. This can work alongside page cache when page cache exclusions are respected.', 'wpxcache'),
+			];
+		}
+
+		if (! empty($env['woocommerce']) && ! $woocommerce->safe_mode_enabled()) {
+			$warnings[] = [
+				'level'   => 'red',
+				'message' => __('WooCommerce is active but Safe Mode is disabled. Cart, checkout and account pages may expose user-specific content if cached.', 'wpxcache'),
 			];
 		}
 
