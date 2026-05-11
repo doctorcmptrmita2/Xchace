@@ -13,6 +13,7 @@ use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Cache\CachePreloader;
 use WPXCache\Cache\CacheStorage;
 use WPXCache\Core\Config;
+use WPXCache\Profile\ProfileEngine;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -34,6 +35,7 @@ final class DiagnosticsReport {
 			'environment'  => (new EnvironmentScanner())->scan(),
 			'health'       => (new HealthCheck())->checks(),
 			'conflicts'    => (new ConflictDetector())->detect(),
+			'profile'      => (new ProfileEngine())->detect(),
 			'dropin'       => (new AdvancedCacheInstaller())->status(),
 			'cache'        => [
 				'enabled'          => ! empty($settings['cache']['enabled']),

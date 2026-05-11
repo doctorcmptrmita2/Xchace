@@ -11,6 +11,7 @@ namespace WPXCache\Diagnostics;
 
 use WPXCache\Cache\AdvancedCacheInstaller;
 use WPXCache\Compatibility\WooCommerce;
+use WPXCache\Profile\ProfileEngine;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -24,7 +25,23 @@ final class HealthCheck {
 		$env = (new EnvironmentScanner())->scan();
 		$dropin = (new AdvancedCacheInstaller())->status();
 		$woocommerce = new WooCommerce();
+		$profile = (new ProfileEngine())->detect();
 		$checks = [];
+
+		$checks[] = $this->item(
+			'smart_profile',
+			__('Smart profile', 'wpxcache'),
+			'green',
+			sprintf(
+				/* translators: 1: profile label, 2: confidence percent */
+				__('Recommended profile: %1$s (%2$d%% confidence).', 'wpxcache'),
+				$profile['label'],
+				$profile['confidence']
+			),
+			__('The profile is used only for safe recommendations and does not enable risky optimization automatically.', 'wpxcache'),
+			__('Use Smart Optimize to apply conservative settings for this profile.', 'wpxcache'),
+			true
+		);
 
 		$checks[] = $this->item(
 			'wp_cache',

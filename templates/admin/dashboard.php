@@ -5,6 +5,7 @@
  * @package WPXCache
  *
  * @var array<string, mixed> $settings
+ * @var array{id: string, label: string, confidence: int, signals: array<int, string>} $profile
  * @var array<int, array{id: string, label: string, status: string, problem: string, why: string, fix: string, auto_fix: bool}> $checks
  * @var array{count: int, size: string, last_purge: string, last_preload: string} $stats
  * @var array{exists: bool, owned: bool, wp_cache: bool, path: string, config_exists: bool, writable: bool} $dropin
@@ -61,8 +62,29 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 
 		<section class="wpxcache-panel">
 			<h2><?php echo esc_html__('Smart Optimize', 'wpxcache'); ?></h2>
-			<p><?php echo esc_html__('Akıllı profil motoru ileriki partlarda site tipini analiz edip güvenli öneriler sunacak.', 'wpxcache'); ?></p>
-			<button class="button button-primary" type="button" disabled><?php echo esc_html__('Smart Optimize', 'wpxcache'); ?></button>
+			<div class="wpxcache-status is-green">
+				<span><?php echo esc_html($profile['label']); ?></span>
+			</div>
+			<p>
+				<?php
+				printf(
+					/* translators: %d: confidence percentage */
+					esc_html__('Recommended profile confidence: %d%%', 'wpxcache'),
+					absint($profile['confidence'])
+				);
+				?>
+			</p>
+			<?php if ([] !== $profile['signals']) : ?>
+				<ul class="wpxcache-list">
+					<?php foreach (array_slice($profile['signals'], 0, 3) as $signal) : ?>
+						<li><?php echo esc_html($signal); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+			<form method="post" class="wpxcache-actions">
+				<?php \WPXCache\Security\Nonce::field(); ?>
+				<button class="button button-primary" type="submit" name="wpxcache_action" value="apply_smart_optimize"><?php echo esc_html__('Smart Optimize', 'wpxcache'); ?></button>
+			</form>
 		</section>
 
 		<section class="wpxcache-panel">

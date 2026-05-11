@@ -15,6 +15,8 @@ use WPXCache\Core\Config;
 use WPXCache\Diagnostics\ConflictDetector;
 use WPXCache\Diagnostics\HealthCheck;
 use WPXCache\Diagnostics\LogReader;
+use WPXCache\Profile\ProfileEngine;
+use WPXCache\Profile\SafeSettingsApplier;
 use WPXCache\Security\Capability;
 use WPXCache\Security\Nonce;
 
@@ -28,6 +30,7 @@ final class DashboardPage {
 
 		$notice = $this->handle_action();
 		$settings = Config::settings();
+		$profile = (new ProfileEngine())->detect();
 		$checks   = (new HealthCheck())->checks();
 		$storage  = new CacheStorage();
 		$dropin   = (new AdvancedCacheInstaller())->status();
@@ -58,6 +61,16 @@ final class DashboardPage {
 		}
 
 		$installer = new AdvancedCacheInstaller();
+
+		if ('apply_smart_optimize' === $action) {
+			$profile = (new ProfileEngine())->detect();
+			$result = (new SafeSettingsApplier())->apply($profile['id']);
+
+			return [
+				'type'    => $result['success'] ? 'success' : 'error',
+				'message' => $result['message'],
+			];
+		}
 
 		if ('install_dropin' === $action || 'regenerate_dropin' === $action) {
 			$result = $installer->install();
