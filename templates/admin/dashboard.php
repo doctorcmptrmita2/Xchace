@@ -56,7 +56,7 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 
 		<section class="wpxcache-panel">
 			<h2><?php echo esc_html__('WooCommerce Safety', 'wpxcache'); ?></h2>
-			<div class="wpxcache-status <?php echo $woocommerce_safe ? 'is-green' : 'is-yellow'; ?>">
+			<div class="wpxcache-status <?php echo esc_attr($woocommerce_safe ? 'is-green' : 'is-yellow'); ?>">
 				<span><?php echo esc_html($woocommerce_safe ? __('Safe Mode On', 'wpxcache') : __('Safe Mode Off', 'wpxcache')); ?></span>
 			</div>
 			<p><?php echo esc_html__('Sepet, ödeme ve kullanıcıya özel sayfalar cache dışında tutulacak şekilde tasarlanıyor.', 'wpxcache'); ?></p>
