@@ -121,7 +121,7 @@ if (! function_exists('wpxcache_get_cache_status')) {
 
 if (! function_exists('wpxcache_purge_url')) {
 	/**
-	 * Placeholder URL purge API. Full URL-targeted purge arrives with smart purge.
+	 * Purge a single URL from WP XCache generated cache files.
 	 */
 	function wpxcache_purge_url(string $url): bool {
 		$url = esc_url_raw($url);
@@ -130,15 +130,15 @@ if (! function_exists('wpxcache_purge_url')) {
 			return false;
 		}
 
-		return wpxcache_purge_all();
+		return (new WPXCache\Cache\CachePurger())->purge_url($url);
 	}
 }
 
 if (! function_exists('wpxcache_purge_post')) {
 	/**
-	 * Placeholder post purge API. Full related purge arrives with smart purge.
+	 * Purge a post and its related public archive URLs.
 	 */
 	function wpxcache_purge_post(int $post_id): bool {
-		return $post_id > 0 && wpxcache_purge_all();
+		return $post_id > 0 && (new WPXCache\Cache\CachePurger())->purge_post($post_id);
 	}
 }

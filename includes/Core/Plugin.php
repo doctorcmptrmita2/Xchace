@@ -18,6 +18,7 @@ use WPXCache\Compatibility\WooCommerce;
 use WPXCache\Optimization\HtmlMinifier;
 use WPXCache\Optimization\LazyLoad;
 use WPXCache\Optimization\WordPressCleanup;
+use WPXCache\Purge\SmartPurge;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -41,6 +42,7 @@ final class Plugin {
 		(new HtmlMinifier())->register();
 		(new LazyLoad())->register();
 		(new WordPressCleanup())->register();
+		(new SmartPurge())->register();
 		add_action('update_option_' . Config::OPTION_NAME, [$this, 'sync_dropin_config'], 10, 0);
 
 		if (is_admin()) {

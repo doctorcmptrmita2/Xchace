@@ -62,6 +62,37 @@ final class RequestContext {
 		);
 	}
 
+	public static function from_url(string $url): ?self {
+		$url = esc_url_raw($url);
+
+		if ('' === $url || ! wp_http_validate_url($url)) {
+			return null;
+		}
+
+		$parts = wp_parse_url($url);
+
+		if (! is_array($parts) || empty($parts['host'])) {
+			return null;
+		}
+
+		$query = [];
+
+		if (! empty($parts['query']) && is_string($parts['query'])) {
+			parse_str($parts['query'], $query);
+		}
+
+		return new self(
+			'GET',
+			isset($parts['scheme']) && 'http' === strtolower((string) $parts['scheme']) ? 'http' : 'https',
+			strtolower((string) $parts['host']),
+			isset($parts['path']) ? '/' . ltrim(sanitize_text_field(rawurldecode((string) $parts['path'])), '/') : '/',
+			self::sanitize_string_map(is_array($query) ? $query : []),
+			[],
+			[],
+			''
+		);
+	}
+
 	public function method(): string {
 		return $this->method;
 	}
