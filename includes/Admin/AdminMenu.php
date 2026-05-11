@@ -1,0 +1,50 @@
+<?php
+/**
+ * Admin menu registration.
+ *
+ * @package WPXCache
+ */
+
+declare(strict_types=1);
+
+namespace WPXCache\Admin;
+
+use WPXCache\Core\ServiceProvider;
+use WPXCache\Security\Capability;
+
+if (! defined('ABSPATH')) {
+	exit;
+}
+
+final class AdminMenu implements ServiceProvider {
+	public function register(): void {
+		add_action('admin_menu', [$this, 'add_menu']);
+	}
+
+	public function add_menu(): void {
+		add_menu_page(
+			__('WP XCache', 'wpxcache'),
+			__('WP XCache', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache',
+			[$this, 'render_dashboard'],
+			'dashicons-performance',
+			58
+		);
+
+		add_submenu_page(
+			'wpxcache',
+			__('Dashboard', 'wpxcache'),
+			__('Dashboard', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache',
+			[$this, 'render_dashboard']
+		);
+	}
+
+	public function render_dashboard(): void {
+		Capability::require_manage();
+
+		(new DashboardPage())->render();
+	}
+}

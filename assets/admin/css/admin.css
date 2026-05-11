@@ -1,0 +1,111 @@
+.wpxcache-admin {
+	max-width: 1180px;
+}
+
+.wpxcache-header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	margin: 24px 0;
+}
+
+.wpxcache-header h1 {
+	margin-bottom: 6px;
+}
+
+.wpxcache-header p {
+	color: #50575e;
+	font-size: 15px;
+	margin: 0;
+}
+
+.wpxcache-version {
+	background: #f0f6fc;
+	border: 1px solid #c5d9ed;
+	border-radius: 4px;
+	color: #1d4f77;
+	font-weight: 600;
+	padding: 6px 10px;
+}
+
+.wpxcache-grid {
+	display: grid;
+	gap: 16px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wpxcache-panel {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 18px;
+}
+
+.wpxcache-panel h2 {
+	font-size: 16px;
+	margin: 0 0 12px;
+}
+
+.wpxcache-panel p {
+	color: #50575e;
+	margin: 10px 0 0;
+}
+
+.wpxcache-panel-wide {
+	margin-top: 16px;
+}
+
+.wpxcache-status {
+	align-items: center;
+	border-radius: 4px;
+	display: inline-flex;
+	font-weight: 600;
+	min-height: 30px;
+	padding: 0 10px;
+}
+
+.wpxcache-status.is-green {
+	background: #edfaef;
+	color: #0a6b22;
+}
+
+.wpxcache-status.is-yellow {
+	background: #fff8e5;
+	color: #7a4d00;
+}
+
+.wpxcache-list {
+	list-style: disc;
+	margin-left: 18px;
+}
+
+.wpxcache-dot {
+	border-radius: 50%;
+	display: inline-block;
+	height: 10px;
+	margin-right: 8px;
+	width: 10px;
+}
+
+.wpxcache-dot.is-green {
+	background: #00a32a;
+}
+
+.wpxcache-dot.is-yellow {
+	background: #dba617;
+}
+
+.wpxcache-dot.is-red {
+	background: #d63638;
+}
+
+@media (max-width: 782px) {
+	.wpxcache-header,
+	.wpxcache-grid {
+		display: block;
+	}
+
+	.wpxcache-panel {
+		margin-bottom: 16px;
+	}
+}

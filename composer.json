@@ -1,0 +1,14 @@
+{
+  "name": "wpxcache/wp-xcache-pro",
+  "description": "Safe, WooCommerce-aware WordPress cache and performance optimization plugin.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "WPXCache\\": "includes/"
+    }
+  },
+  "require": {
+    "php": ">=8.1"
+  }
+}
