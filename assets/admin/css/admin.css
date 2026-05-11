@@ -222,6 +222,11 @@
 	color: #8a2424;
 }
 
+.wpxcache-danger {
+	border-color: #d63638 !important;
+	color: #8a2424 !important;
+}
+
 @media (max-width: 782px) {
 	.wpxcache-header,
 	.wpxcache-grid {

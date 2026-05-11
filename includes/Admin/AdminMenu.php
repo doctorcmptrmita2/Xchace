@@ -76,6 +76,15 @@ final class AdminMenu implements ServiceProvider {
 			'wpxcache-media',
 			[$this, 'render_media']
 		);
+
+		add_submenu_page(
+			'wpxcache',
+			__('Tools', 'wpxcache'),
+			__('Tools', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-tools',
+			[$this, 'render_tools']
+		);
 	}
 
 	public function render_dashboard(): void {
@@ -106,5 +115,11 @@ final class AdminMenu implements ServiceProvider {
 		Capability::require_manage();
 
 		(new MediaPage())->render();
+	}
+
+	public function render_tools(): void {
+		Capability::require_manage();
+
+		(new ToolsPage())->render();
 	}
 }
