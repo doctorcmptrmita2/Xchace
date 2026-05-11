@@ -15,6 +15,7 @@ use WPXCache\Cache\CachePurger;
 use WPXCache\Cache\CacheStorage;
 use WPXCache\Core\Config;
 use WPXCache\Diagnostics\DiagnosticsReport;
+use WPXCache\Optimization\AssetCacheManager;
 use WPXCache\Tools\SettingsManager;
 
 if (! defined('ABSPATH')) {
@@ -44,6 +45,7 @@ final class WpCliCommands {
 		$dropin    = (new AdvancedCacheInstaller())->status();
 		$preloader = new CachePreloader($settings);
 		$preload   = $preloader->state();
+		$asset_stats = (new AssetCacheManager())->stats();
 
 		$items = [
 			[
@@ -81,6 +83,14 @@ final class WpCliCommands {
 			[
 				'name'  => 'Preload status',
 				'value' => sanitize_key((string) ($preload['status'] ?? 'idle')),
+			],
+			[
+				'name'  => 'Optimized assets',
+				'value' => (string) $asset_stats['count'],
+			],
+			[
+				'name'  => 'Optimized asset size',
+				'value' => (string) $asset_stats['size'],
 			],
 		];
 
@@ -121,6 +131,49 @@ final class WpCliCommands {
 		}
 
 		\WP_CLI::error('Unknown purge target. Use: all or url <url>.');
+	}
+
+	/**
+	 * Manage optimized asset cache.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp wpxcache assets status
+	 *     wp wpxcache assets clear
+	 *
+	 * @param array<int, string> $args Positional arguments.
+	 * @param array<string, mixed> $assoc_args Associative arguments.
+	 */
+	public function assets(array $args = [], array $assoc_args = []): void {
+		unset($assoc_args);
+
+		$action = sanitize_key((string) ($args[0] ?? 'status'));
+		$manager = new AssetCacheManager();
+
+		if ('clear' === $action) {
+			$result = $manager->clear();
+			$this->finish($result['success'], $result['message'], $result['message']);
+			return;
+		}
+
+		if ('status' === $action) {
+			$stats = $manager->stats();
+			\WP_CLI\Utils\format_items(
+				'table',
+				[
+					['name' => 'Exists', 'value' => $stats['exists'] ? 'yes' : 'no'],
+					['name' => 'Writable', 'value' => $stats['writable'] ? 'yes' : 'no'],
+					['name' => 'Optimized assets', 'value' => (string) $stats['count']],
+					['name' => 'CSS files', 'value' => (string) $stats['css_count']],
+					['name' => 'JS files', 'value' => (string) $stats['js_count']],
+					['name' => 'Size', 'value' => (string) $stats['size']],
+				],
+				['name', 'value']
+			);
+			return;
+		}
+
+		\WP_CLI::error('Unknown assets action. Use: status or clear.');
 	}
 
 	/**

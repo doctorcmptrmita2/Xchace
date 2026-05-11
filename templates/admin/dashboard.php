@@ -7,7 +7,7 @@
  * @var array<string, mixed> $settings
  * @var array{id: string, label: string, confidence: int, signals: array<int, string>} $profile
  * @var array<int, array{id: string, label: string, status: string, problem: string, why: string, fix: string, auto_fix: bool}> $checks
- * @var array{count: int, size: string, last_purge: string, last_preload: string} $stats
+ * @var array{count: int, size: string, last_purge: string, last_preload: string, optimized_assets: int, optimized_assets_size: string} $stats
  * @var array{exists: bool, owned: bool, wp_cache: bool, path: string, config_exists: bool, writable: bool} $dropin
  * @var array<int, array{level: string, message: string}> $conflicts
  * @var array<int, array<string, mixed>> $logs
@@ -23,6 +23,7 @@ if (! defined('ABSPATH')) {
 $cache_enabled       = ! empty($settings['cache']['enabled']);
 $woocommerce_safe    = ! empty($settings['woocommerce']['safe_mode']);
 $optimization_safe   = ! empty($settings['optimization']['safe_mode']);
+$optimization_enabled = ! empty($settings['optimization']['minify_html']) || ! empty($settings['optimization']['minify_css']) || ! empty($settings['optimization']['minify_js']) || ! empty($settings['optimization']['defer_css']) || ! empty($settings['optimization']['defer_js']);
 $cache_status_label  = $cache_enabled ? __('Enabled', 'wpxcache') : __('Disabled', 'wpxcache');
 $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 ?>
@@ -94,6 +95,18 @@ $cache_status_class  = $cache_enabled ? 'is-green' : 'is-yellow';
 				<li><strong><?php echo esc_html($stats['size']); ?></strong><span><?php echo esc_html__('Cache size', 'wpxcache'); ?></span></li>
 				<li><strong><?php echo esc_html($stats['last_purge']); ?></strong><span><?php echo esc_html__('Last purge', 'wpxcache'); ?></span></li>
 				<li><strong><?php echo esc_html($stats['last_preload']); ?></strong><span><?php echo esc_html__('Last preload', 'wpxcache'); ?></span></li>
+			</ul>
+		</section>
+
+		<section class="wpxcache-panel">
+			<h2><?php echo esc_html__('File Optimization', 'wpxcache'); ?></h2>
+			<div class="wpxcache-status <?php echo esc_attr($optimization_enabled ? 'is-green' : 'is-yellow'); ?>">
+				<span><?php echo esc_html($optimization_enabled ? __('Active', 'wpxcache') : __('Inactive', 'wpxcache')); ?></span>
+			</div>
+			<p><?php echo esc_html($optimization_safe ? __('Safe Mode is protecting WooCommerce, forms and payment scripts.', 'wpxcache') : __('Safe Mode is off. Test CSS and JS changes carefully.', 'wpxcache')); ?></p>
+			<ul class="wpxcache-metrics">
+				<li><strong><?php echo esc_html(number_format_i18n($stats['optimized_assets'])); ?></strong><span><?php echo esc_html__('Optimized assets', 'wpxcache'); ?></span></li>
+				<li><strong><?php echo esc_html($stats['optimized_assets_size']); ?></strong><span><?php echo esc_html__('Asset cache size', 'wpxcache'); ?></span></li>
 			</ul>
 		</section>
 

@@ -14,6 +14,7 @@ use WPXCache\Cache\CachePurger;
 use WPXCache\Core\Config;
 use WPXCache\Diagnostics\DiagnosticsReport;
 use WPXCache\Logger\Logger;
+use WPXCache\Optimization\AssetCacheManager;
 use WPXCache\Security\Capability;
 use WPXCache\Security\Nonce;
 use WPXCache\Tools\SettingsManager;
@@ -28,6 +29,7 @@ final class ToolsPage {
 
 		$notice = $this->handle_action();
 		$settings = Config::settings();
+		$asset_stats = (new AssetCacheManager())->stats();
 		$export = wp_json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
 		if (! is_string($export)) {
@@ -79,6 +81,12 @@ final class ToolsPage {
 
 		if ('clear_logs' === $action) {
 			$result = $settings_manager->clear_logs();
+
+			return $this->notice_from_result($result);
+		}
+
+		if ('clear_optimized_assets' === $action) {
+			$result = (new AssetCacheManager())->clear();
 
 			return $this->notice_from_result($result);
 		}

@@ -45,14 +45,14 @@ final class CdnPage {
 
 		$settings = Config::settings();
 		$settings['cdn'] = [
-			'enabled'                   => isset($_POST['cdn_enabled']),
-			'base_url'                  => esc_url_raw((string) wp_unslash($_POST['cdn_base_url'] ?? '')),
+			'enabled'                   => $this->posted_checkbox('cdn_enabled'),
+			'base_url'                  => esc_url_raw($this->posted_string('cdn_base_url')),
 			'included_file_types'       => $this->csv('cdn_included_file_types'),
 			'excluded_paths'            => $this->lines('cdn_excluded_paths'),
-			'cloudflare_enabled'        => isset($_POST['cloudflare_enabled']),
-			'cloudflare_api_token'      => sanitize_text_field((string) wp_unslash($_POST['cloudflare_api_token'] ?? '')),
-			'cloudflare_zone_id'        => sanitize_text_field((string) wp_unslash($_POST['cloudflare_zone_id'] ?? '')),
-			'purge_cloudflare_on_purge' => isset($_POST['purge_cloudflare_on_purge']),
+			'cloudflare_enabled'        => $this->posted_checkbox('cloudflare_enabled'),
+			'cloudflare_api_token'      => sanitize_text_field($this->posted_string('cloudflare_api_token')),
+			'cloudflare_zone_id'        => sanitize_text_field($this->posted_string('cloudflare_zone_id')),
+			'purge_cloudflare_on_purge' => $this->posted_checkbox('purge_cloudflare_on_purge'),
 		];
 
 		update_option(Config::OPTION_NAME, $settings, false);
@@ -68,7 +68,7 @@ final class CdnPage {
 	 * @return array<int, string>
 	 */
 	private function csv(string $key): array {
-		$value = sanitize_text_field((string) wp_unslash($_POST[$key] ?? ''));
+		$value = sanitize_text_field($this->posted_string($key));
 		$items = array_map('trim', explode(',', $value));
 
 		return array_values(array_unique(array_filter(array_map('sanitize_key', $items))));
@@ -78,10 +78,26 @@ final class CdnPage {
 	 * @return array<int, string>
 	 */
 	private function lines(string $key): array {
-		$value = sanitize_textarea_field((string) wp_unslash($_POST[$key] ?? ''));
+		$value = sanitize_textarea_field($this->posted_string($key));
 		$items = preg_split('/\R/', $value) ?: [];
 		$items = array_map('trim', $items);
 
 		return array_values(array_unique(array_filter(array_map('sanitize_text_field', $items))));
+	}
+
+	private function posted_checkbox(string $key): bool {
+		$value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+
+		if (! is_string($value)) {
+			return false;
+		}
+
+		return (bool) rest_sanitize_boolean(wp_unslash($value));
+	}
+
+	private function posted_string(string $key): string {
+		$value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+
+		return is_string($value) ? (string) wp_unslash($value) : '';
 	}
 }

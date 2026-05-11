@@ -83,16 +83,16 @@ final class CachePage {
 
 	private function save_settings(): array {
 		$settings = Config::settings();
-		$settings['cache']['enabled'] = isset($_POST['cache_enabled']);
+		$settings['cache']['enabled'] = $this->posted_checkbox('cache_enabled');
 		$settings['cache']['ttl'] = $this->int('cache_ttl', 3600, 60, WEEK_IN_SECONDS);
-		$settings['cache']['separate_mobile_cache'] = isset($_POST['separate_mobile_cache']);
-		$settings['cache']['cache_logged_in_users'] = isset($_POST['cache_logged_in_users']);
-		$settings['cache']['cache_404'] = isset($_POST['cache_404']);
-		$settings['cache']['cache_search'] = isset($_POST['cache_search']);
-		$settings['cache']['cache_feeds'] = isset($_POST['cache_feeds']);
-		$settings['cache']['cache_rest_api'] = isset($_POST['cache_rest_api']);
-		$settings['cache']['purge_home_on_update'] = isset($_POST['purge_home_on_update']);
-		$settings['cache']['purge_archives_on_update'] = isset($_POST['purge_archives_on_update']);
+		$settings['cache']['separate_mobile_cache'] = $this->posted_checkbox('separate_mobile_cache');
+		$settings['cache']['cache_logged_in_users'] = $this->posted_checkbox('cache_logged_in_users');
+		$settings['cache']['cache_404'] = $this->posted_checkbox('cache_404');
+		$settings['cache']['cache_search'] = $this->posted_checkbox('cache_search');
+		$settings['cache']['cache_feeds'] = $this->posted_checkbox('cache_feeds');
+		$settings['cache']['cache_rest_api'] = $this->posted_checkbox('cache_rest_api');
+		$settings['cache']['purge_home_on_update'] = $this->posted_checkbox('purge_home_on_update');
+		$settings['cache']['purge_archives_on_update'] = $this->posted_checkbox('purge_archives_on_update');
 
 		update_option(Config::OPTION_NAME, $settings, false);
 		(new AdvancedCacheInstaller())->write_config();
@@ -105,9 +105,20 @@ final class CachePage {
 	}
 
 	private function int(string $key, int $default, int $min, int $max): int {
-		$value = isset($_POST[$key]) ? absint(wp_unslash($_POST[$key])) : $default;
+		$value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+		$value = is_string($value) ? absint(wp_unslash($value)) : $default;
 
 		return max($min, min($max, $value));
+	}
+
+	private function posted_checkbox(string $key): bool {
+		$value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW);
+
+		if (! is_string($value)) {
+			return false;
+		}
+
+		return (bool) rest_sanitize_boolean(wp_unslash($value));
 	}
 
 	private function format_timestamp(int $timestamp): string {

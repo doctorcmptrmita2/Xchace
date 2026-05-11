@@ -14,6 +14,7 @@ use WPXCache\Cache\CachePreloader;
 use WPXCache\Cache\CacheStorage;
 use WPXCache\Core\Config;
 use WPXCache\Database\DatabaseCleaner;
+use WPXCache\Optimization\AssetCacheManager;
 use WPXCache\Profile\ProfileEngine;
 
 if (! defined('ABSPATH')) {
@@ -43,6 +44,15 @@ final class DiagnosticsReport {
 				'cached_pages'     => $storage->html_file_count(),
 				'cache_size_bytes' => $storage->size_bytes(),
 				'last_purge'       => (int) get_option('wpxcache_last_purge', 0),
+			],
+			'optimization' => [
+				'safe_mode'        => ! empty($settings['optimization']['safe_mode']),
+				'minify_html'      => ! empty($settings['optimization']['minify_html']),
+				'minify_css'       => ! empty($settings['optimization']['minify_css']),
+				'minify_js'        => ! empty($settings['optimization']['minify_js']),
+				'defer_css'        => ! empty($settings['optimization']['defer_css']),
+				'defer_js'         => ! empty($settings['optimization']['defer_js']),
+				'optimized_assets' => (new AssetCacheManager())->stats(),
 			],
 			'preload'      => (new CachePreloader($settings))->state(),
 			'cdn'          => [

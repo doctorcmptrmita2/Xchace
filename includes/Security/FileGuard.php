@@ -55,4 +55,20 @@ final class FileGuard {
 
 		return false !== file_put_contents($path, $contents, LOCK_EX);
 	}
+
+	public function delete_cache_file(string $path): bool {
+		if (is_link($path) || ! is_file($path) || ! $this->path_validator->is_safe_cache_path($path)) {
+			return false;
+		}
+
+		return wp_delete_file($path);
+	}
+
+	public function remove_cache_directory(string $path): bool {
+		if (is_link($path) || ! is_dir($path) || ! $this->path_validator->is_safe_cache_path($path)) {
+			return false;
+		}
+
+		return @rmdir($path);
+	}
 }

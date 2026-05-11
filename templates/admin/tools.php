@@ -6,6 +6,7 @@
  *
  * @var string $export
  * @var array<string, mixed> $settings
+ * @var array{exists: bool, writable: bool, count: int, css_count: int, js_count: int, size_bytes: int, size: string} $asset_stats
  * @var array{type: string, message: string}|null $notice
  */
 
@@ -51,9 +52,16 @@ if (! defined('ABSPATH')) {
 
 	<section class="wpxcache-panel wpxcache-panel-wide">
 		<h2><?php echo esc_html__('Maintenance', 'wpxcache'); ?></h2>
+		<ul class="wpxcache-metrics">
+			<li><strong><?php echo esc_html(number_format_i18n($asset_stats['count'])); ?></strong><span><?php echo esc_html__('Optimized assets', 'wpxcache'); ?></span></li>
+			<li><strong><?php echo esc_html(number_format_i18n($asset_stats['css_count'])); ?></strong><span><?php echo esc_html__('CSS files', 'wpxcache'); ?></span></li>
+			<li><strong><?php echo esc_html(number_format_i18n($asset_stats['js_count'])); ?></strong><span><?php echo esc_html__('JS files', 'wpxcache'); ?></span></li>
+			<li><strong><?php echo esc_html($asset_stats['size']); ?></strong><span><?php echo esc_html__('Asset cache size', 'wpxcache'); ?></span></li>
+		</ul>
 		<form method="post" class="wpxcache-actions">
 			<?php \WPXCache\Security\Nonce::field(); ?>
 			<button class="button" type="submit" name="wpxcache_action" value="clear_cache"><?php echo esc_html__('Clear all cache', 'wpxcache'); ?></button>
+			<button class="button" type="submit" name="wpxcache_action" value="clear_optimized_assets"><?php echo esc_html__('Clear optimized assets', 'wpxcache'); ?></button>
 			<button class="button" type="submit" name="wpxcache_action" value="clear_logs"><?php echo esc_html__('Clear logs', 'wpxcache'); ?></button>
 			<button class="button" type="submit" name="wpxcache_action" value="regenerate_dropin"><?php echo esc_html__('Regenerate drop-in', 'wpxcache'); ?></button>
 			<button class="button" type="submit" name="wpxcache_action" value="remove_dropin"><?php echo esc_html__('Remove drop-in', 'wpxcache'); ?></button>

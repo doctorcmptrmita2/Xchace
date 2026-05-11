@@ -15,6 +15,7 @@ use WPXCache\Core\Config;
 use WPXCache\Diagnostics\ConflictDetector;
 use WPXCache\Diagnostics\HealthCheck;
 use WPXCache\Diagnostics\LogReader;
+use WPXCache\Optimization\AssetCacheManager;
 use WPXCache\Profile\ProfileEngine;
 use WPXCache\Profile\SafeSettingsApplier;
 use WPXCache\Security\Capability;
@@ -36,11 +37,14 @@ final class DashboardPage {
 		$dropin   = (new AdvancedCacheInstaller())->status();
 		$conflicts = (new ConflictDetector())->detect();
 		$logs = (new LogReader())->recent(6);
+		$asset_stats = (new AssetCacheManager())->stats();
 		$stats    = [
 			'count'      => $storage->html_file_count(),
 			'size'       => size_format($storage->size_bytes()),
 			'last_purge' => $this->format_last_purge(),
 			'last_preload' => $this->format_timestamp((int) get_option('wpxcache_last_preload', 0)),
+			'optimized_assets' => $asset_stats['count'],
+			'optimized_assets_size' => $asset_stats['size'],
 		];
 
 		require WPXCACHE_PATH . 'templates/admin/dashboard.php';
