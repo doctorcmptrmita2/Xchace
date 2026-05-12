@@ -36,6 +36,7 @@ final class Activator {
 		}
 
 		update_option('wpxcache_version', WPXCACHE_VERSION, false);
+		update_option('wpxcache_setup_redirect', true, false);
 
 		if (! is_dir(WPXCACHE_CACHE_DIR)) {
 			wp_mkdir_p(WPXCACHE_CACHE_DIR);

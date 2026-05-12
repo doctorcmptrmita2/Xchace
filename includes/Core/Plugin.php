@@ -61,7 +61,34 @@ final class Plugin {
 		if (is_admin()) {
 			(new Assets())->register();
 			(new AdminMenu())->register();
+			add_action('admin_init', [$this, 'maybe_redirect_setup_wizard']);
 		}
+	}
+
+	public function maybe_redirect_setup_wizard(): void {
+		if (! current_user_can('manage_options') || wp_doing_ajax()) {
+			return;
+		}
+
+		if (! get_option('wpxcache_setup_redirect', false)) {
+			return;
+		}
+
+		delete_option('wpxcache_setup_redirect');
+
+		if ((bool) get_option('wpxcache_setup_wizard_completed', false)) {
+			return;
+		}
+
+		$page = filter_input(INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+		$is_bulk_activation = is_string(filter_input(INPUT_GET, 'activate-multi', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+
+		if ('wpxcache-setup' === $page || $is_bulk_activation) {
+			return;
+		}
+
+		wp_safe_redirect(admin_url('admin.php?page=wpxcache-setup'));
+		exit;
 	}
 
 	public function sync_dropin_config(): void {

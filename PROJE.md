@@ -511,6 +511,8 @@ Eklenecekler:
 - Cakisan cache eklentisi uyarisi.
 - Smart Optimize akisi.
 
+Durum: Ilk surum uygulandi. Admin menude Setup Wizard sayfasi eklendi; ilk aktivasyonda yetkili kullanici wizard'a yonlendirilir. Sayfada site profili, conflict/health review, WooCommerce guvenligi, drop-in/dizin hazirlama ve safe settings uygulama aksiyonlari bulunuyor.
+
 ### 2. Risk Level System
 
 Her ayar icin:

@@ -262,6 +262,42 @@
 	margin-top: 6px;
 }
 
+.wpxcache-wizard-steps {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wpxcache-wizard-step {
+	align-items: flex-start;
+	background: #f6f7f7;
+	border-radius: 4px;
+	display: flex;
+	gap: 10px;
+	min-height: 86px;
+	padding: 12px;
+}
+
+.wpxcache-wizard-step p {
+	margin-top: 4px;
+}
+
+.wpxcache-step-number {
+	align-items: center;
+	background: #2271b1;
+	border-radius: 50%;
+	color: #fff;
+	display: inline-flex;
+	font-weight: 700;
+	height: 26px;
+	justify-content: center;
+	min-width: 26px;
+}
+
+.wpxcache-health-list.is-compact {
+	grid-template-columns: 1fr;
+}
+
 @media (max-width: 782px) {
 	.wpxcache-header,
 	.wpxcache-grid {
@@ -281,6 +317,10 @@
 	}
 
 	.wpxcache-field-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.wpxcache-wizard-steps {
 		grid-template-columns: 1fr;
 	}
 }

@@ -43,6 +43,15 @@ final class AdminMenu implements ServiceProvider {
 
 		add_submenu_page(
 			'wpxcache',
+			__('Setup Wizard', 'wpxcache'),
+			__('Setup Wizard', 'wpxcache'),
+			Capability::MANAGE,
+			'wpxcache-setup',
+			[$this, 'render_setup_wizard']
+		);
+
+		add_submenu_page(
+			'wpxcache',
 			__('Cache', 'wpxcache'),
 			__('Cache', 'wpxcache'),
 			Capability::MANAGE,
@@ -127,6 +136,12 @@ final class AdminMenu implements ServiceProvider {
 		Capability::require_manage();
 
 		(new DashboardPage())->render();
+	}
+
+	public function render_setup_wizard(): void {
+		Capability::require_manage();
+
+		(new SetupWizardPage())->render();
 	}
 
 	public function render_cache(): void {
