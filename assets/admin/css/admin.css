@@ -268,17 +268,50 @@
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.wpxcache-wizard-steps.is-flow {
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
 .wpxcache-wizard-step {
 	align-items: flex-start;
 	background: #f6f7f7;
 	border-radius: 4px;
+	color: #1d2327;
 	display: flex;
 	gap: 10px;
 	min-height: 86px;
 	padding: 12px;
+	text-decoration: none;
+}
+
+.wpxcache-wizard-step:hover,
+.wpxcache-wizard-step:focus {
+	color: #1d2327;
+	outline: 2px solid #72aee6;
+	outline-offset: 1px;
+}
+
+.wpxcache-wizard-step.is-active {
+	background: #f0f6fc;
+	box-shadow: inset 0 0 0 2px #2271b1;
+}
+
+.wpxcache-wizard-step.is-done .wpxcache-step-number {
+	background: #00a32a;
+}
+
+.wpxcache-wizard-step.is-pending .wpxcache-step-number {
+	background: #8c8f94;
 }
 
 .wpxcache-wizard-step p {
+	margin-top: 4px;
+}
+
+.wpxcache-wizard-step small {
+	color: #646970;
+	display: block;
+	line-height: 1.35;
 	margin-top: 4px;
 }
 
@@ -296,6 +329,36 @@
 
 .wpxcache-health-list.is-compact {
 	grid-template-columns: 1fr;
+}
+
+.wpxcache-wizard-stage h3 {
+	font-size: 14px;
+	margin: 20px 0 10px;
+}
+
+.wpxcache-choice-list {
+	display: grid;
+	gap: 10px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wpxcache-choice-card,
+.wpxcache-summary-box {
+	background: #f6f7f7;
+	border-radius: 4px;
+	display: block;
+	padding: 12px;
+}
+
+.wpxcache-choice-card input {
+	margin-right: 6px;
+}
+
+.wpxcache-wizard-actions {
+	align-items: center;
+	border-top: 1px solid #dcdcde;
+	margin-top: 20px;
+	padding-top: 16px;
 }
 
 @media (max-width: 782px) {
@@ -321,6 +384,10 @@
 	}
 
 	.wpxcache-wizard-steps {
+		grid-template-columns: 1fr;
+	}
+
+	.wpxcache-choice-list {
 		grid-template-columns: 1fr;
 	}
 }

@@ -511,7 +511,7 @@ Eklenecekler:
 - Cakisan cache eklentisi uyarisi.
 - Smart Optimize akisi.
 
-Durum: Ilk surum uygulandi. Admin menude Setup Wizard sayfasi eklendi; ilk aktivasyonda yetkili kullanici wizard'a yonlendirilir. Sayfada site profili, conflict/health review, WooCommerce guvenligi, drop-in/dizin hazirlama ve safe settings uygulama aksiyonlari bulunuyor.
+Durum: Cok adimli ilk kurulum akisi uygulandi. Ilk aktivasyonda yetkili kullanici Setup Wizard'a yonlendirilir. Wizard; site analizi, page cache, file optimization, media, preload, WooCommerce, CDN, advanced rules ve finish adimlarini sirayla gosterir. Her adimda Kaydet ve devam et, Gec ve kurulumu atla aksiyonlari bulunur. Riskli ayarlar kullanici secmeden otomatik acilmaz.
 
 ### 2. Risk Level System
 
