@@ -60,6 +60,13 @@ final class SetupWizardPage {
 		$preload = is_array($settings['preload'] ?? null) ? $settings['preload'] : [];
 		$woocommerce_settings = is_array($settings['woocommerce'] ?? null) ? $settings['woocommerce'] : [];
 		$cdn = is_array($settings['cdn'] ?? null) ? $settings['cdn'] : [];
+		$cache_risk_items = RiskRegistry::items('cache', $cache);
+		$optimization_items = RiskRegistry::items('optimization', $optimization);
+		$media_items = RiskRegistry::items('media', $media);
+		$preload_risk_items = RiskRegistry::items('preload', $preload);
+		$woocommerce_risk_items = RiskRegistry::items('woocommerce', $woocommerce_settings);
+		$cdn_risk_items = RiskRegistry::items('cdn', $cdn);
+		$advanced_risk_items = RiskRegistry::items('advanced', $cache);
 
 		$profile = (new ProfileEngine())->detect();
 		$selected_profile = $this->selected_profile_id($profile['id']);

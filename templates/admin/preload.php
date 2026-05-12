@@ -6,6 +6,8 @@
  *
  * @var array<string, mixed> $settings
  * @var array<string, mixed> $state
+ * @var array<string, mixed> $preload
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $risk_items
  * @var array{type: string, message: string}|null $notice
  */
 
@@ -69,6 +71,17 @@ $percent = $total > 0 ? min(100, (int) floor(($processed + $failed) * 100 / $tot
 
 	<section class="wpxcache-panel wpxcache-panel-wide">
 		<h2><?php echo esc_html__('Safe Limits', 'wpxcache'); ?></h2>
+		<div class="wpxcache-health-list">
+			<?php foreach ($risk_items as $item) : ?>
+				<article class="wpxcache-health-item">
+					<div class="wpxcache-health-heading">
+						<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
+						<strong><?php echo esc_html($item['label']); ?></strong>
+					</div>
+					<p><?php echo esc_html($item['message']); ?></p>
+				</article>
+			<?php endforeach; ?>
+		</div>
 		<ul class="wpxcache-list">
 			<li><?php echo esc_html__('Batch size is intentionally small to protect shared hosting.', 'wpxcache'); ?></li>
 			<li><?php echo esc_html__('Requests are processed by WP-Cron with delay between batches.', 'wpxcache'); ?></li>

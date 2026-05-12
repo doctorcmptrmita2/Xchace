@@ -28,6 +28,7 @@ final class CachePage {
 		$notice = $this->handle_action();
 		$settings = Config::settings();
 		$cache = is_array($settings['cache'] ?? null) ? $settings['cache'] : [];
+		$risk_items = RiskRegistry::items('cache', $cache);
 		$storage = new CacheStorage();
 		$dropin = (new AdvancedCacheInstaller())->status();
 		$stats = [

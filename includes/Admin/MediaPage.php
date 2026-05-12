@@ -24,6 +24,8 @@ final class MediaPage {
 
 		$notice = $this->handle_save();
 		$settings = Config::settings();
+		$media = is_array($settings['media'] ?? null) ? $settings['media'] : [];
+		$risk_items = RiskRegistry::items('media', $media);
 
 		require WPXCACHE_PATH . 'templates/admin/media.php';
 	}

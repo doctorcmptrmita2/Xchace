@@ -528,6 +528,8 @@ Riskli ayarlar:
 - Geri alma onerisi sunar.
 - WooCommerce varsa ekstra uyari verir.
 
+Durum: Merkezi RiskRegistry eklendi. Cache, File Optimization, Media, Preload, WooCommerce, CDN, Database, Advanced Rules ve Setup Wizard ekranlari ayni Safe / Medium / Risky sozlugunu kullanir. Riskli ayarlar hala otomatik acilmaz; kullanici acikca secmeden kaydedilmez.
+
 ### 3. Safe Rollback
 
 - Ayar degisikligi snapshot'i.

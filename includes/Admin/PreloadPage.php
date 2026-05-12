@@ -23,6 +23,8 @@ final class PreloadPage {
 		Capability::require_manage();
 
 		$settings = Config::settings();
+		$preload = is_array($settings['preload'] ?? null) ? $settings['preload'] : [];
+		$risk_items = RiskRegistry::items('preload', $preload);
 		$preloader = new CachePreloader($settings);
 		$notice = $this->handle_action($preloader);
 		$state = $preloader->state();

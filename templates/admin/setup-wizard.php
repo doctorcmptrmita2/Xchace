@@ -11,6 +11,13 @@
  * @var array<string, mixed> $preload
  * @var array<string, mixed> $woocommerce_settings
  * @var array<string, mixed> $cdn
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $cache_risk_items
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $optimization_items
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $media_items
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $preload_risk_items
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $woocommerce_risk_items
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $cdn_risk_items
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $advanced_risk_items
  * @var array{id: string, label: string, confidence: int, signals: array<int, string>} $profile
  * @var string $selected_profile
  * @var array<string, mixed> $environment
@@ -38,25 +45,6 @@ if (! defined('ABSPATH')) {
 $wizard_url = static function (string $step): string {
 	return admin_url('admin.php?page=wpxcache-setup&wpxcache_step=' . rawurlencode($step));
 };
-
-$optimization_items = [
-	['key' => 'minify_html', 'label' => __('Minify HTML', 'wpxcache'), 'risk' => 'Safe', 'message' => __('Conservative HTML cleanup.', 'wpxcache')],
-	['key' => 'remove_generator', 'label' => __('Remove generator meta', 'wpxcache'), 'risk' => 'Safe', 'message' => __('Removes the WordPress generator meta tag.', 'wpxcache')],
-	['key' => 'minify_css', 'label' => __('Minify CSS', 'wpxcache'), 'risk' => 'Medium', 'message' => __('Saved as a setting; runtime CSS rewriting remains protected by default.', 'wpxcache')],
-	['key' => 'minify_js', 'label' => __('Minify JS', 'wpxcache'), 'risk' => 'Medium', 'message' => __('Protected scripts are skipped in Safe Mode.', 'wpxcache')],
-	['key' => 'combine_css', 'label' => __('Combine CSS', 'wpxcache'), 'risk' => 'Risky', 'message' => __('Can break load order on complex themes.', 'wpxcache')],
-	['key' => 'defer_css', 'label' => __('Defer CSS', 'wpxcache'), 'risk' => 'Risky', 'message' => __('Can change first paint without Critical CSS.', 'wpxcache')],
-	['key' => 'defer_js', 'label' => __('Defer JS', 'wpxcache'), 'risk' => 'Risky', 'message' => __('Can break menus, forms or checkout scripts if exclusions are missing.', 'wpxcache')],
-	['key' => 'delay_js', 'label' => __('Delay JS execution', 'wpxcache'), 'risk' => 'Risky', 'message' => __('Requires careful plugin compatibility testing.', 'wpxcache')],
-];
-
-$media_items = [
-	['key' => 'lazy_load_images', 'label' => __('Lazy load images', 'wpxcache'), 'risk' => 'Safe', 'message' => __('Adds native lazy loading to content images.', 'wpxcache')],
-	['key' => 'lazy_load_iframes', 'label' => __('Lazy load iframes', 'wpxcache'), 'risk' => 'Safe', 'message' => __('Defers iframe loading with native browser behavior.', 'wpxcache')],
-	['key' => 'disable_emoji', 'label' => __('Disable emoji', 'wpxcache'), 'risk' => 'Safe', 'message' => __('Removes WordPress emoji assets.', 'wpxcache')],
-	['key' => 'youtube_placeholder', 'label' => __('YouTube placeholder', 'wpxcache'), 'risk' => 'Medium', 'message' => __('Useful later for video-heavy pages; test embeds before enabling.', 'wpxcache')],
-	['key' => 'disable_embeds', 'label' => __('Disable embeds', 'wpxcache'), 'risk' => 'Medium', 'message' => __('Can affect sites that rely on oEmbed previews.', 'wpxcache')],
-];
 
 $exclude_css = is_array($optimization['exclude_css'] ?? null) ? implode("\n", array_map('strval', $optimization['exclude_css'])) : '';
 $exclude_js = is_array($optimization['exclude_js'] ?? null) ? implode("\n", array_map('strval', $optimization['exclude_js'])) : '';
@@ -178,18 +166,32 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 					<tbody>
 						<tr>
 							<th scope="row"><?php echo esc_html__('Enable page cache', 'wpxcache'); ?></th>
-							<td><label><input type="checkbox" name="cache_enabled" <?php checked(! empty($cache['enabled'])); ?>> <?php echo esc_html__('Cache anonymous public pages.', 'wpxcache'); ?></label></td>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($cache_risk_items['cache_enabled']); ?>
+								<label><input type="checkbox" name="cache_enabled" <?php checked(! empty($cache['enabled'])); ?>> <?php echo esc_html__('Cache anonymous public pages.', 'wpxcache'); ?></label>
+								<p class="wpxcache-risk-note"><?php echo esc_html($cache_risk_items['cache_enabled']['message']); ?></p>
+							</td>
 						</tr>
 						<tr>
 							<th scope="row"><?php echo esc_html__('Cache lifespan TTL', 'wpxcache'); ?></th>
-							<td><input class="small-text" type="number" min="60" max="<?php echo esc_attr((string) WEEK_IN_SECONDS); ?>" name="cache_ttl" value="<?php echo esc_attr((string) ($cache['ttl'] ?? 3600)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?></td>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($cache_risk_items['ttl']); ?>
+								<input class="small-text" type="number" min="60" max="<?php echo esc_attr((string) WEEK_IN_SECONDS); ?>" name="cache_ttl" value="<?php echo esc_attr((string) ($cache['ttl'] ?? 3600)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?>
+								<p class="wpxcache-risk-note"><?php echo esc_html($cache_risk_items['ttl']['message']); ?></p>
+							</td>
 						</tr>
 						<tr>
 							<th scope="row"><?php echo esc_html__('Safe purge behavior', 'wpxcache'); ?></th>
 							<td>
-								<label><input type="checkbox" name="purge_home_on_update" <?php checked(! empty($cache['purge_home_on_update'])); ?>> <?php echo esc_html__('Purge homepage on content update.', 'wpxcache'); ?></label><br>
-								<label><input type="checkbox" name="purge_archives_on_update" <?php checked(! empty($cache['purge_archives_on_update'])); ?>> <?php echo esc_html__('Purge related archives on content update.', 'wpxcache'); ?></label><br>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($cache_risk_items['purge_home_on_update']); ?>
+								<label><input type="checkbox" name="purge_home_on_update" <?php checked(! empty($cache['purge_home_on_update'])); ?>> <?php echo esc_html__('Purge homepage on content update.', 'wpxcache'); ?></label>
+								<p class="wpxcache-risk-note"><?php echo esc_html($cache_risk_items['purge_home_on_update']['message']); ?></p>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($cache_risk_items['purge_archives_on_update']); ?>
+								<label><input type="checkbox" name="purge_archives_on_update" <?php checked(! empty($cache['purge_archives_on_update'])); ?>> <?php echo esc_html__('Purge related archives on content update.', 'wpxcache'); ?></label>
+								<p class="wpxcache-risk-note"><?php echo esc_html($cache_risk_items['purge_archives_on_update']['message']); ?></p>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($cache_risk_items['separate_mobile_cache']); ?>
 								<label><input type="checkbox" name="separate_mobile_cache" <?php checked(! empty($cache['separate_mobile_cache'])); ?>> <?php echo esc_html__('Create separate mobile cache when needed.', 'wpxcache'); ?></label>
+								<p class="wpxcache-risk-note"><?php echo esc_html($cache_risk_items['separate_mobile_cache']['message']); ?></p>
 							</td>
 						</tr>
 					</tbody>
@@ -197,11 +199,18 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 
 				<h3><?php echo esc_html__('Risky cache options', 'wpxcache'); ?></h3>
 				<div class="wpxcache-health-list">
-					<label class="wpxcache-health-item"><span class="wpxcache-risk is-risky"><?php echo esc_html__('Risky', 'wpxcache'); ?></span><br><input type="checkbox" name="cache_logged_in_users" <?php checked(! empty($cache['cache_logged_in_users'])); ?>> <?php echo esc_html__('Cache logged-in users', 'wpxcache'); ?></label>
-					<label class="wpxcache-health-item"><span class="wpxcache-risk is-medium"><?php echo esc_html__('Medium', 'wpxcache'); ?></span><br><input type="checkbox" name="cache_404" <?php checked(! empty($cache['cache_404'])); ?>> <?php echo esc_html__('Cache 404 pages', 'wpxcache'); ?></label>
-					<label class="wpxcache-health-item"><span class="wpxcache-risk is-medium"><?php echo esc_html__('Medium', 'wpxcache'); ?></span><br><input type="checkbox" name="cache_search" <?php checked(! empty($cache['cache_search'])); ?>> <?php echo esc_html__('Cache search pages', 'wpxcache'); ?></label>
-					<label class="wpxcache-health-item"><span class="wpxcache-risk is-medium"><?php echo esc_html__('Medium', 'wpxcache'); ?></span><br><input type="checkbox" name="cache_feeds" <?php checked(! empty($cache['cache_feeds'])); ?>> <?php echo esc_html__('Cache feeds', 'wpxcache'); ?></label>
-					<label class="wpxcache-health-item"><span class="wpxcache-risk is-risky"><?php echo esc_html__('Risky', 'wpxcache'); ?></span><br><input type="checkbox" name="cache_rest_api" <?php checked(! empty($cache['cache_rest_api'])); ?>> <?php echo esc_html__('Cache REST API', 'wpxcache'); ?></label>
+					<?php foreach (['cache_logged_in_users', 'cache_404', 'cache_search', 'cache_feeds', 'cache_rest_api'] as $cache_key) : ?>
+						<?php $item = $cache_risk_items[$cache_key]; ?>
+						<label class="wpxcache-health-item">
+							<span class="wpxcache-health-heading">
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
+								<strong><?php echo esc_html($item['label']); ?></strong>
+							</span>
+							<input type="checkbox" name="<?php echo esc_attr($item['key']); ?>" <?php checked(! empty($cache[$item['key']])); ?>>
+							<span><?php echo esc_html(! empty($cache[$item['key']]) ? __('Enabled', 'wpxcache') : __('Disabled', 'wpxcache')); ?></span>
+							<p><?php echo esc_html($item['message']); ?></p>
+						</label>
+					<?php endforeach; ?>
 				</div>
 
 				<div class="wpxcache-actions wpxcache-wizard-actions">
@@ -222,14 +231,18 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 				<input type="hidden" name="wpxcache_next_step" value="media">
 				<label class="wpxcache-toggle-row">
 					<input type="checkbox" name="safe_mode" <?php checked(! empty($optimization['safe_mode'])); ?>>
+					<?php echo \WPXCache\Admin\RiskRegistry::badge($optimization_items['safe_mode']); ?>
 					<strong><?php echo esc_html__('Safe Mode', 'wpxcache'); ?></strong>
-					<span><?php echo esc_html__('Protect WooCommerce, forms, checkout and payment scripts from aggressive optimization.', 'wpxcache'); ?></span>
+					<span><?php echo esc_html($optimization_items['safe_mode']['message']); ?></span>
 				</label>
 				<div class="wpxcache-health-list">
 					<?php foreach ($optimization_items as $item) : ?>
+						<?php if ('safe_mode' === $item['key']) : ?>
+							<?php continue; ?>
+						<?php endif; ?>
 						<label class="wpxcache-health-item">
 							<span class="wpxcache-health-heading">
-								<span class="wpxcache-risk is-<?php echo esc_attr(strtolower($item['risk'])); ?>"><?php echo esc_html($item['risk']); ?></span>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
 								<strong><?php echo esc_html($item['label']); ?></strong>
 							</span>
 							<input type="checkbox" name="<?php echo esc_attr($item['key']); ?>" <?php checked(! empty($optimization[$item['key']])); ?>>
@@ -268,7 +281,7 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 					<?php foreach ($media_items as $item) : ?>
 						<label class="wpxcache-health-item">
 							<span class="wpxcache-health-heading">
-								<span class="wpxcache-risk is-<?php echo esc_attr(strtolower($item['risk'])); ?>"><?php echo esc_html($item['risk']); ?></span>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
 								<strong><?php echo esc_html($item['label']); ?></strong>
 							</span>
 							<input type="checkbox" name="<?php echo esc_attr($item['key']); ?>" <?php checked(! empty($media[$item['key']])); ?>>
@@ -295,20 +308,57 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 				<input type="hidden" name="wpxcache_next_step" value="woocommerce">
 				<table class="form-table" role="presentation">
 					<tbody>
-						<tr><th scope="row"><?php echo esc_html__('Enable preload', 'wpxcache'); ?></th><td><label><input type="checkbox" name="preload_enabled" <?php checked(! empty($preload['enabled'])); ?>> <?php echo esc_html__('Allow WP-Cron warmup queue.', 'wpxcache'); ?></label></td></tr>
-						<tr><th scope="row"><?php echo esc_html__('Sitemap URL', 'wpxcache'); ?></th><td><input class="regular-text" type="url" name="sitemap_url" value="<?php echo esc_attr((string) ($preload['sitemap_url'] ?? '')); ?>" placeholder="<?php echo esc_attr(home_url('/sitemap.xml')); ?>"></td></tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('Enable preload', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($preload_risk_items['enabled']); ?>
+								<label><input type="checkbox" name="preload_enabled" <?php checked(! empty($preload['enabled'])); ?>> <?php echo esc_html__('Allow WP-Cron warmup queue.', 'wpxcache'); ?></label>
+								<p class="wpxcache-risk-note"><?php echo esc_html($preload_risk_items['enabled']['message']); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('Sitemap URL', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($preload_risk_items['sitemap_url']); ?>
+								<input class="regular-text" type="url" name="sitemap_url" value="<?php echo esc_attr((string) ($preload['sitemap_url'] ?? '')); ?>" placeholder="<?php echo esc_attr(home_url('/sitemap.xml')); ?>">
+								<p class="wpxcache-risk-note"><?php echo esc_html($preload_risk_items['sitemap_url']['message']); ?></p>
+							</td>
+						</tr>
 						<tr>
 							<th scope="row"><?php echo esc_html__('URLs to preload', 'wpxcache'); ?></th>
 							<td>
-								<label><input type="checkbox" name="preload_homepage" <?php checked(! empty($preload['preload_homepage'])); ?>> <?php echo esc_html__('Homepage', 'wpxcache'); ?></label><br>
-								<label><input type="checkbox" name="preload_posts" <?php checked(! empty($preload['preload_posts'])); ?>> <?php echo esc_html__('Recent posts', 'wpxcache'); ?></label><br>
-								<label><input type="checkbox" name="preload_pages" <?php checked(! empty($preload['preload_pages'])); ?>> <?php echo esc_html__('Pages', 'wpxcache'); ?></label><br>
-								<label><input type="checkbox" name="preload_products" <?php checked(! empty($preload['preload_products'])); ?>> <?php echo esc_html__('Products', 'wpxcache'); ?></label>
+								<?php foreach (['preload_homepage', 'preload_posts', 'preload_pages', 'preload_products'] as $preload_key) : ?>
+									<?php $item = $preload_risk_items[$preload_key]; ?>
+									<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
+									<label><input type="checkbox" name="<?php echo esc_attr($item['key']); ?>" <?php checked(! empty($preload[$item['key']])); ?>> <?php echo esc_html($item['label']); ?></label>
+									<p class="wpxcache-risk-note"><?php echo esc_html($item['message']); ?></p>
+								<?php endforeach; ?>
 							</td>
 						</tr>
-						<tr><th scope="row"><?php echo esc_html__('Batch size', 'wpxcache'); ?></th><td><input class="small-text" type="number" min="1" max="10" name="batch_size" value="<?php echo esc_attr((string) ($preload['batch_size'] ?? 3)); ?>"></td></tr>
-						<tr><th scope="row"><?php echo esc_html__('Delay between batches', 'wpxcache'); ?></th><td><input class="small-text" type="number" min="1" max="120" name="delay" value="<?php echo esc_attr((string) ($preload['delay'] ?? 10)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?></td></tr>
-						<tr><th scope="row"><?php echo esc_html__('Auto preload after purge', 'wpxcache'); ?></th><td><label><input type="checkbox" name="auto_after_purge" <?php checked(! empty($preload['auto_after_purge'])); ?>> <?php echo esc_html__('Start warmup after cache purge.', 'wpxcache'); ?></label></td></tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('Batch size', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($preload_risk_items['batch_size']); ?>
+								<input class="small-text" type="number" min="1" max="10" name="batch_size" value="<?php echo esc_attr((string) ($preload['batch_size'] ?? 3)); ?>">
+								<p class="wpxcache-risk-note"><?php echo esc_html($preload_risk_items['batch_size']['message']); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('Delay between batches', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($preload_risk_items['delay']); ?>
+								<input class="small-text" type="number" min="1" max="120" name="delay" value="<?php echo esc_attr((string) ($preload['delay'] ?? 10)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?>
+								<p class="wpxcache-risk-note"><?php echo esc_html($preload_risk_items['delay']['message']); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('Auto preload after purge', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($preload_risk_items['auto_after_purge']); ?>
+								<label><input type="checkbox" name="auto_after_purge" <?php checked(! empty($preload['auto_after_purge'])); ?>> <?php echo esc_html__('Start warmup after cache purge.', 'wpxcache'); ?></label>
+								<p class="wpxcache-risk-note"><?php echo esc_html($preload_risk_items['auto_after_purge']['message']); ?></p>
+							</td>
+						</tr>
 					</tbody>
 				</table>
 				<div class="wpxcache-actions wpxcache-wizard-actions">
@@ -329,15 +379,39 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 				<input type="hidden" name="wpxcache_next_step" value="cdn">
 				<table class="form-table" role="presentation">
 					<tbody>
-						<tr><th scope="row"><?php echo esc_html__('WooCommerce Safe Mode', 'wpxcache'); ?></th><td><label><input type="checkbox" name="woocommerce_safe_mode" <?php checked(! empty($woocommerce_settings['safe_mode'])); ?>> <?php echo esc_html__('Keep cart, checkout, account and session cookies protected.', 'wpxcache'); ?></label></td></tr>
-						<tr><th scope="row"><?php echo esc_html__('Product cache TTL', 'wpxcache'); ?></th><td><input class="small-text" type="number" min="60" max="<?php echo esc_attr((string) WEEK_IN_SECONDS); ?>" name="product_cache_ttl" value="<?php echo esc_attr((string) ($woocommerce_settings['product_cache_ttl'] ?? 3600)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?></td></tr>
-						<tr><th scope="row"><?php echo esc_html__('Shop archive cache TTL', 'wpxcache'); ?></th><td><input class="small-text" type="number" min="60" max="<?php echo esc_attr((string) WEEK_IN_SECONDS); ?>" name="shop_archive_cache_ttl" value="<?php echo esc_attr((string) ($woocommerce_settings['shop_archive_cache_ttl'] ?? 3600)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?></td></tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('WooCommerce Safe Mode', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($woocommerce_risk_items['safe_mode']); ?>
+								<label><input type="checkbox" name="woocommerce_safe_mode" <?php checked(! empty($woocommerce_settings['safe_mode'])); ?>> <?php echo esc_html__('Keep cart, checkout, account and session cookies protected.', 'wpxcache'); ?></label>
+								<p class="wpxcache-risk-note"><?php echo esc_html($woocommerce_risk_items['safe_mode']['message']); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('Product cache TTL', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($woocommerce_risk_items['product_cache_ttl']); ?>
+								<input class="small-text" type="number" min="60" max="<?php echo esc_attr((string) WEEK_IN_SECONDS); ?>" name="product_cache_ttl" value="<?php echo esc_attr((string) ($woocommerce_settings['product_cache_ttl'] ?? 3600)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?>
+								<p class="wpxcache-risk-note"><?php echo esc_html($woocommerce_risk_items['product_cache_ttl']['message']); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__('Shop archive cache TTL', 'wpxcache'); ?></th>
+							<td>
+								<?php echo \WPXCache\Admin\RiskRegistry::badge($woocommerce_risk_items['shop_archive_cache_ttl']); ?>
+								<input class="small-text" type="number" min="60" max="<?php echo esc_attr((string) WEEK_IN_SECONDS); ?>" name="shop_archive_cache_ttl" value="<?php echo esc_attr((string) ($woocommerce_settings['shop_archive_cache_ttl'] ?? 3600)); ?>"> <?php echo esc_html__('seconds', 'wpxcache'); ?>
+								<p class="wpxcache-risk-note"><?php echo esc_html($woocommerce_risk_items['shop_archive_cache_ttl']['message']); ?></p>
+							</td>
+						</tr>
 						<tr>
 							<th scope="row"><?php echo esc_html__('Purge rules', 'wpxcache'); ?></th>
 							<td>
-								<label><input type="checkbox" name="stock_update_purge" <?php checked(! empty($woocommerce_settings['stock_update_purge'])); ?>> <?php echo esc_html__('Purge product cache after stock updates.', 'wpxcache'); ?></label><br>
-								<label><input type="checkbox" name="price_update_purge" <?php checked(! empty($woocommerce_settings['price_update_purge'])); ?>> <?php echo esc_html__('Purge product cache after price updates.', 'wpxcache'); ?></label><br>
-								<label><input type="checkbox" name="cart_fragment_safe_mode" <?php checked(! empty($woocommerce_settings['cart_fragment_safe_mode'])); ?>> <?php echo esc_html__('Mini cart compatibility mode.', 'wpxcache'); ?></label>
+								<?php foreach (['stock_update_purge', 'price_update_purge', 'cart_fragment_safe_mode'] as $woo_key) : ?>
+									<?php $item = $woocommerce_risk_items[$woo_key]; ?>
+									<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
+									<label><input type="checkbox" name="<?php echo esc_attr($item['key']); ?>" <?php checked(! empty($woocommerce_settings[$item['key']])); ?>> <?php echo esc_html($item['label']); ?></label>
+									<p class="wpxcache-risk-note"><?php echo esc_html($item['message']); ?></p>
+								<?php endforeach; ?>
 							</td>
 						</tr>
 					</tbody>
@@ -361,7 +435,9 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 				<div class="wpxcache-field-grid">
 					<section>
 						<h3><?php echo esc_html__('CDN rewrite', 'wpxcache'); ?></h3>
+						<?php echo \WPXCache\Admin\RiskRegistry::badge($cdn_risk_items['enabled']); ?>
 						<label><input type="checkbox" name="cdn_enabled" <?php checked(! empty($cdn['enabled'])); ?>> <?php echo esc_html__('Enable CDN rewrite for static files.', 'wpxcache'); ?></label>
+						<p class="wpxcache-risk-note"><?php echo esc_html($cdn_risk_items['enabled']['message']); ?></p>
 						<p><label><?php echo esc_html__('CDN base URL', 'wpxcache'); ?></label></p>
 						<input class="regular-text" type="url" name="cdn_base_url" value="<?php echo esc_attr((string) ($cdn['base_url'] ?? '')); ?>" placeholder="https://cdn.example.com">
 						<p><label><?php echo esc_html__('Included file types', 'wpxcache'); ?></label></p>
@@ -371,12 +447,18 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 					</section>
 					<section>
 						<h3><?php echo esc_html__('Cloudflare', 'wpxcache'); ?></h3>
+						<?php echo \WPXCache\Admin\RiskRegistry::badge($cdn_risk_items['cloudflare_enabled']); ?>
 						<label><input type="checkbox" name="cloudflare_enabled" <?php checked(! empty($cdn['cloudflare_enabled'])); ?>> <?php echo esc_html__('Enable Cloudflare integration.', 'wpxcache'); ?></label>
+						<p class="wpxcache-risk-note"><?php echo esc_html($cdn_risk_items['cloudflare_enabled']['message']); ?></p>
 						<p><label><?php echo esc_html__('API token', 'wpxcache'); ?></label></p>
 						<input class="regular-text" type="password" name="cloudflare_api_token" value="<?php echo esc_attr((string) ($cdn['cloudflare_api_token'] ?? '')); ?>" autocomplete="off">
 						<p><label><?php echo esc_html__('Zone ID', 'wpxcache'); ?></label></p>
 						<input class="regular-text" type="text" name="cloudflare_zone_id" value="<?php echo esc_attr((string) ($cdn['cloudflare_zone_id'] ?? '')); ?>">
-						<p><label><input type="checkbox" name="purge_cloudflare_on_purge" <?php checked(! empty($cdn['purge_cloudflare_on_purge'])); ?>> <?php echo esc_html__('Purge Cloudflare when local cache is purged.', 'wpxcache'); ?></label></p>
+						<p>
+							<?php echo \WPXCache\Admin\RiskRegistry::badge($cdn_risk_items['purge_cloudflare_on_purge']); ?>
+							<label><input type="checkbox" name="purge_cloudflare_on_purge" <?php checked(! empty($cdn['purge_cloudflare_on_purge'])); ?>> <?php echo esc_html__('Purge Cloudflare when local cache is purged.', 'wpxcache'); ?></label>
+						</p>
+						<p class="wpxcache-risk-note"><?php echo esc_html($cdn_risk_items['purge_cloudflare_on_purge']['message']); ?></p>
 					</section>
 				</div>
 				<div class="wpxcache-actions wpxcache-wizard-actions">
@@ -396,12 +478,21 @@ $cdn_excluded_paths = is_array($cdn['excluded_paths'] ?? null) ? implode("\n", a
 				<input type="hidden" name="wpxcache_current_step" value="advanced">
 				<input type="hidden" name="wpxcache_next_step" value="finish">
 				<div class="wpxcache-field-grid">
-					<label><strong><?php echo esc_html__('Never cache URLs', 'wpxcache'); ?></strong><textarea class="large-text code" rows="7" name="never_cache_urls"><?php echo esc_textarea($advanced_text['never_cache_urls']); ?></textarea></label>
-					<label><strong><?php echo esc_html__('Never cache cookies', 'wpxcache'); ?></strong><textarea class="large-text code" rows="7" name="never_cache_cookies"><?php echo esc_textarea($advanced_text['never_cache_cookies']); ?></textarea></label>
-					<label><strong><?php echo esc_html__('Never cache user agents', 'wpxcache'); ?></strong><textarea class="large-text code" rows="7" name="never_cache_user_agents"><?php echo esc_textarea($advanced_text['never_cache_user_agents']); ?></textarea></label>
-					<label><strong><?php echo esc_html__('Query string whitelist', 'wpxcache'); ?></strong><textarea class="large-text code" rows="7" name="query_string_whitelist"><?php echo esc_textarea($advanced_text['query_string_whitelist']); ?></textarea></label>
+					<?php foreach (['never_cache_urls', 'never_cache_cookies', 'never_cache_user_agents', 'query_string_whitelist'] as $advanced_key) : ?>
+						<?php $item = $advanced_risk_items[$advanced_key]; ?>
+						<label>
+							<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
+							<strong><?php echo esc_html($item['label']); ?></strong>
+							<span><?php echo esc_html($item['message']); ?></span>
+							<textarea class="large-text code" rows="7" name="<?php echo esc_attr($item['key']); ?>"><?php echo esc_textarea($advanced_text[$advanced_key]); ?></textarea>
+						</label>
+					<?php endforeach; ?>
 				</div>
-				<p><label><strong><?php echo esc_html__('Custom TTL per path', 'wpxcache'); ?></strong></label></p>
+				<p>
+					<?php echo \WPXCache\Admin\RiskRegistry::badge($advanced_risk_items['custom_ttl']); ?>
+					<label><strong><?php echo esc_html($advanced_risk_items['custom_ttl']['label']); ?></strong></label>
+				</p>
+				<p class="wpxcache-risk-note"><?php echo esc_html($advanced_risk_items['custom_ttl']['message']); ?></p>
 				<textarea class="large-text code" rows="6" name="custom_ttl" placeholder="/blog|900"><?php echo esc_textarea($advanced_text['custom_ttl']); ?></textarea>
 				<div class="wpxcache-actions wpxcache-wizard-actions">
 					<a class="button" href="<?php echo esc_url($wizard_url($previous_step)); ?>"><?php echo esc_html__('Back', 'wpxcache'); ?></a>

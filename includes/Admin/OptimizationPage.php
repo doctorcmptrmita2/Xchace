@@ -24,6 +24,8 @@ final class OptimizationPage {
 
 		$notice = $this->handle_save();
 		$settings = Config::settings();
+		$optimization = is_array($settings['optimization'] ?? null) ? $settings['optimization'] : [];
+		$risk_items = RiskRegistry::items('optimization', $optimization);
 
 		require WPXCACHE_PATH . 'templates/admin/optimization.php';
 	}

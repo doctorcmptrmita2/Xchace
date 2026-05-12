@@ -5,6 +5,7 @@
  * @package WPXCache
  *
  * @var array<string, mixed> $cache
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $risk_items
  * @var array{type: string, message: string}|null $notice
  */
 
@@ -44,32 +45,42 @@ if (is_array($cache['custom_ttl'] ?? null)) {
 		<div class="wpxcache-grid">
 			<section class="wpxcache-panel">
 				<h2><?php echo esc_html__('Never Cache URLs', 'wpxcache'); ?></h2>
+				<?php echo \WPXCache\Admin\RiskRegistry::badge($risk_items['never_cache_urls']); ?>
 				<p><?php echo esc_html__('Her satıra bir path yazın. Örnek: /checkout', 'wpxcache'); ?></p>
+				<p class="wpxcache-risk-note"><?php echo esc_html($risk_items['never_cache_urls']['message']); ?></p>
 				<textarea class="large-text code" rows="8" name="never_cache_urls"><?php echo esc_textarea(implode("\n", is_array($cache['never_cache_urls'] ?? null) ? $cache['never_cache_urls'] : [])); ?></textarea>
 			</section>
 
 			<section class="wpxcache-panel">
 				<h2><?php echo esc_html__('Never Cache Cookies', 'wpxcache'); ?></h2>
+				<?php echo \WPXCache\Admin\RiskRegistry::badge($risk_items['never_cache_cookies']); ?>
 				<p><?php echo esc_html__('Cookie prefix listesi. Eşleşen cookie varsa cache bypass edilir.', 'wpxcache'); ?></p>
+				<p class="wpxcache-risk-note"><?php echo esc_html($risk_items['never_cache_cookies']['message']); ?></p>
 				<textarea class="large-text code" rows="8" name="never_cache_cookies"><?php echo esc_textarea(implode("\n", is_array($cache['never_cache_cookies'] ?? null) ? $cache['never_cache_cookies'] : [])); ?></textarea>
 			</section>
 
 			<section class="wpxcache-panel">
 				<h2><?php echo esc_html__('Never Cache User Agents', 'wpxcache'); ?></h2>
+				<?php echo \WPXCache\Admin\RiskRegistry::badge($risk_items['never_cache_user_agents']); ?>
 				<p><?php echo esc_html__('Her satıra user-agent parçası yazın.', 'wpxcache'); ?></p>
+				<p class="wpxcache-risk-note"><?php echo esc_html($risk_items['never_cache_user_agents']['message']); ?></p>
 				<textarea class="large-text code" rows="8" name="never_cache_user_agents"><?php echo esc_textarea(implode("\n", is_array($cache['never_cache_user_agents'] ?? null) ? $cache['never_cache_user_agents'] : [])); ?></textarea>
 			</section>
 
 			<section class="wpxcache-panel">
 				<h2><?php echo esc_html__('Query String Whitelist', 'wpxcache'); ?></h2>
+				<?php echo \WPXCache\Admin\RiskRegistry::badge($risk_items['query_string_whitelist']); ?>
 				<p><?php echo esc_html__('Cache key’e dahil edilecek güvenli query parametreleri.', 'wpxcache'); ?></p>
+				<p class="wpxcache-risk-note"><?php echo esc_html($risk_items['query_string_whitelist']['message']); ?></p>
 				<textarea class="large-text code" rows="8" name="query_string_whitelist"><?php echo esc_textarea(implode("\n", is_array($cache['query_string_whitelist'] ?? null) ? $cache['query_string_whitelist'] : [])); ?></textarea>
 			</section>
 		</div>
 
 		<section class="wpxcache-panel wpxcache-panel-wide">
 			<h2><?php echo esc_html__('Custom TTL Per Path', 'wpxcache'); ?></h2>
+			<?php echo \WPXCache\Admin\RiskRegistry::badge($risk_items['custom_ttl']); ?>
 			<p><?php echo esc_html__('Format: /path|seconds. Örnek: /blog|900', 'wpxcache'); ?></p>
+			<p class="wpxcache-risk-note"><?php echo esc_html($risk_items['custom_ttl']['message']); ?></p>
 			<textarea class="large-text code" rows="8" name="custom_ttl"><?php echo esc_textarea(implode("\n", $custom_ttl_lines)); ?></textarea>
 			<div class="wpxcache-actions">
 				<button class="button button-primary" type="submit" name="wpxcache_action" value="save_advanced_rules"><?php echo esc_html__('Save advanced rules', 'wpxcache'); ?></button>

@@ -22,6 +22,8 @@ final class WooCommercePage {
 		Capability::require_manage();
 
 		$settings = Config::settings();
+		$woocommerce_settings = is_array($settings['woocommerce'] ?? null) ? $settings['woocommerce'] : [];
+		$risk_items = RiskRegistry::items('woocommerce', $woocommerce_settings);
 		$woocommerce = new WooCommerce($settings);
 		$items = $woocommerce->status_items();
 

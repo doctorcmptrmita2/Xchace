@@ -5,6 +5,8 @@
  * @package WPXCache
  *
  * @var array<string, mixed> $settings
+ * @var array<string, mixed> $optimization
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $risk_items
  * @var array{type: string, message: string}|null $notice
  */
 
@@ -14,19 +16,9 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-$optimization = is_array($settings['optimization'] ?? null) ? $settings['optimization'] : [];
 $exclude_css = is_array($optimization['exclude_css'] ?? null) ? implode("\n", array_map('strval', $optimization['exclude_css'])) : '';
 $exclude_js = is_array($optimization['exclude_js'] ?? null) ? implode("\n", array_map('strval', $optimization['exclude_js'])) : '';
-$items = [
-	['key' => 'minify_html', 'label' => __('Minify HTML', 'wpxcache'), 'enabled' => ! empty($optimization['minify_html']), 'risk' => 'Safe', 'message' => __('HTML comments and unnecessary whitespace are reduced conservatively.', 'wpxcache')],
-	['key' => 'minify_css', 'label' => __('Minify CSS', 'wpxcache'), 'enabled' => ! empty($optimization['minify_css']), 'risk' => 'Medium', 'message' => __('Saved as a setting. Runtime CSS rewriting stays disabled by default until public asset delivery is verified.', 'wpxcache')],
-	['key' => 'combine_css', 'label' => __('Combine CSS', 'wpxcache'), 'enabled' => ! empty($optimization['combine_css']), 'risk' => 'Risky', 'message' => __('Saved for compatibility planning; combine runtime will be added after stronger exclusions.', 'wpxcache')],
-	['key' => 'defer_css', 'label' => __('Defer CSS', 'wpxcache'), 'enabled' => ! empty($optimization['defer_css']), 'risk' => 'Risky', 'message' => __('Saved as a setting. Runtime is disabled by default because it can break layout without Critical CSS.', 'wpxcache')],
-	['key' => 'minify_js', 'label' => __('Minify JS', 'wpxcache'), 'enabled' => ! empty($optimization['minify_js']), 'risk' => 'Medium', 'message' => __('Local JS files are compacted conservatively; protected scripts are skipped in Safe Mode.', 'wpxcache')],
-	['key' => 'defer_js', 'label' => __('Defer JS', 'wpxcache'), 'enabled' => ! empty($optimization['defer_js']), 'risk' => 'Risky', 'message' => __('Adds defer only to eligible scripts. Checkout, cart, forms and payment scripts stay protected.', 'wpxcache')],
-	['key' => 'delay_js', 'label' => __('Delay JS execution', 'wpxcache'), 'enabled' => ! empty($optimization['delay_js']), 'risk' => 'Risky', 'message' => __('Saved as a setting; delay runtime needs per-plugin compatibility rules before activation.', 'wpxcache')],
-	['key' => 'remove_generator', 'label' => __('Remove generator meta', 'wpxcache'), 'enabled' => ! empty($optimization['remove_generator']), 'risk' => 'Safe', 'message' => __('Removes the WordPress generator meta output.', 'wpxcache')],
-];
+$safe_mode_item = $risk_items['safe_mode'];
 ?>
 <div class="wrap wpxcache-admin">
 	<?php if (is_array($notice)) : ?>
@@ -49,14 +41,18 @@ $items = [
 			<?php \WPXCache\Security\Nonce::field(); ?>
 			<label class="wpxcache-toggle-row">
 				<input type="checkbox" name="safe_mode" <?php checked(! empty($optimization['safe_mode'])); ?>>
+				<?php echo \WPXCache\Admin\RiskRegistry::badge($safe_mode_item); ?>
 				<strong><?php echo esc_html__('Safe Mode', 'wpxcache'); ?></strong>
-				<span><?php echo esc_html__('Keeps risky optimization conservative for WooCommerce, forms and payment flows.', 'wpxcache'); ?></span>
+				<span><?php echo esc_html($safe_mode_item['message']); ?></span>
 			</label>
 			<div class="wpxcache-health-list">
-				<?php foreach ($items as $item) : ?>
+				<?php foreach ($risk_items as $item) : ?>
+					<?php if ('safe_mode' === $item['key']) : ?>
+						<?php continue; ?>
+					<?php endif; ?>
 					<label class="wpxcache-health-item">
 						<span class="wpxcache-health-heading">
-							<span class="wpxcache-risk is-<?php echo esc_attr(strtolower($item['risk'])); ?>"><?php echo esc_html($item['risk']); ?></span>
+							<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
 							<strong><?php echo esc_html($item['label']); ?></strong>
 						</span>
 						<input type="checkbox" name="<?php echo esc_attr($item['key']); ?>" <?php checked(! empty($item['enabled'])); ?>>
@@ -73,9 +69,12 @@ $items = [
 
 	<section class="wpxcache-panel wpxcache-panel-wide">
 		<h2><?php echo esc_html__('Exclusions', 'wpxcache'); ?></h2>
-		<form method="post">
+			<form method="post">
 			<?php \WPXCache\Security\Nonce::field(); ?>
-			<?php foreach ($items as $item) : ?>
+			<?php foreach ($risk_items as $item) : ?>
+				<?php if ('safe_mode' === $item['key']) : ?>
+					<?php continue; ?>
+				<?php endif; ?>
 				<input type="hidden" name="<?php echo esc_attr($item['key']); ?>" value="<?php echo ! empty($item['enabled']) ? '1' : ''; ?>">
 			<?php endforeach; ?>
 			<input type="hidden" name="safe_mode" value="<?php echo ! empty($optimization['safe_mode']) ? '1' : ''; ?>">

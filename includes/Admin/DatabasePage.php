@@ -24,6 +24,7 @@ final class DatabasePage {
 		$cleaner = new DatabaseCleaner();
 		$notice = $this->handle_action($cleaner);
 		$counts = $cleaner->counts();
+		$risk_items = RiskRegistry::items('database', $counts);
 
 		require WPXCACHE_PATH . 'templates/admin/database.php';
 	}

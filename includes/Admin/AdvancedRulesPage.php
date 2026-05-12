@@ -26,6 +26,7 @@ final class AdvancedRulesPage {
 		$notice = $this->handle_save();
 		$settings = Config::settings();
 		$cache = is_array($settings['cache'] ?? null) ? $settings['cache'] : [];
+		$risk_items = RiskRegistry::items('advanced', $cache);
 
 		require WPXCACHE_PATH . 'templates/admin/advanced-rules.php';
 	}

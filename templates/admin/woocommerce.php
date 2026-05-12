@@ -6,6 +6,7 @@
  *
  * @var array<string, mixed> $settings
  * @var array<int, array{label: string, status: string, message: string}> $items
+ * @var array<string, array{key: string, label: string, level: string, risk_label: string, risk_class: string, message: string, enabled: bool}> $risk_items
  */
 
 declare(strict_types=1);
@@ -40,6 +41,21 @@ $safe_mode = ! empty($settings['woocommerce']['safe_mode']);
 				<article class="wpxcache-health-item">
 					<div class="wpxcache-health-heading">
 						<span class="wpxcache-dot is-<?php echo esc_attr($item['status']); ?>"></span>
+						<strong><?php echo esc_html($item['label']); ?></strong>
+					</div>
+					<p><?php echo esc_html($item['message']); ?></p>
+				</article>
+			<?php endforeach; ?>
+		</div>
+	</section>
+
+	<section class="wpxcache-panel wpxcache-panel-wide">
+		<h2><?php echo esc_html__('WooCommerce Risk Map', 'wpxcache'); ?></h2>
+		<div class="wpxcache-health-list">
+			<?php foreach ($risk_items as $item) : ?>
+				<article class="wpxcache-health-item">
+					<div class="wpxcache-health-heading">
+						<?php echo \WPXCache\Admin\RiskRegistry::badge($item); ?>
 						<strong><?php echo esc_html($item['label']); ?></strong>
 					</div>
 					<p><?php echo esc_html($item['message']); ?></p>

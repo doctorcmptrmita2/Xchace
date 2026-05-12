@@ -25,6 +25,7 @@ final class CdnPage {
 		$notice = $this->handle_save();
 		$settings = Config::settings();
 		$cdn = is_array($settings['cdn'] ?? null) ? $settings['cdn'] : [];
+		$risk_items = RiskRegistry::items('cdn', $cdn);
 
 		require WPXCACHE_PATH . 'templates/admin/cdn.php';
 	}
